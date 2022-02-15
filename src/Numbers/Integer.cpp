@@ -87,6 +87,30 @@ Integer operator*(Integer a, const Integer& b) {
     return a;
 }
 
+bool Integer::operator==(const Integer& other) const {
+    return val == other.val;
+}
+
+bool Integer::operator!=(const Integer& other) const {
+    return val != other.val;
+}
+
+bool Integer::operator>=(const Integer& other) const {
+    return val >= other.val;
+}
+
+bool Integer::operator>(const Integer& other) const {
+    return val > other.val;
+}
+
+bool Integer::operator<(const Integer& other) const {
+    return val < other.val;
+}
+
+bool Integer::operator<=(const Integer& other) const {
+    return val <= other.val;
+}
+
 Integer Integer::abs() const {
     if (val < 0) {
         if (val == INT_MIN)

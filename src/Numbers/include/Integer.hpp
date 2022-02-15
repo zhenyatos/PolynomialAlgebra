@@ -14,6 +14,13 @@ public:
     Integer& operator*=(const Integer& other);
     Integer operator-() const; 
 
+    bool operator==(const Integer& other) const;
+    bool operator!=(const Integer& other) const;
+    bool operator>=(const Integer& other) const;
+    bool operator>(const Integer& other) const;
+    bool operator<(const Integer& other) const;
+    bool operator<=(const Integer& other) const;
+
     Integer abs() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Integer& integer);
