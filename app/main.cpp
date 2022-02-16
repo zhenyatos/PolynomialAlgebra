@@ -4,10 +4,14 @@
 #include <limits>
 
 int main() {
-    Integer a = INT_MAX;
-    Integer b = INT_MIN;
-    Integer c = norm(b + 1);
-    std::cout << (Integer)1 << std::endl;
-    std::cout << (a > b) << " " << (a != a);
+    Integer a = 8;
+    Integer b = 34;
+    Integer res;
+    while (b != 0) {
+        Integer r = a.rem(b);
+        a = b;
+        b = r;
+    }
+    std::cout << a;
     return 0;
 }

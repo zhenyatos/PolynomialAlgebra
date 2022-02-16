@@ -7,13 +7,14 @@ public:
     static const IntegerError SUBSTRACTION_OVERFLOW;
     static const IntegerError TAKING_OPPOSITE_OVERFLOW;
     static const IntegerError MULTIPLICATION_OVERFLOW;
+    static const IntegerError DIVISION_BY_ZERO;
 
     constexpr operator const char*() {
         return message[code];
     };
 
 private:
-    static const char* message[4];
+    static const char* message[5];
     
     size_t code;
 
@@ -121,6 +122,18 @@ Integer Integer::abs() const {
     return val;
 }
 
+Integer Integer::div(const Integer& other) const {
+    if (other.val == 0)
+        throw std::domain_error(IntegerError::DIVISION_BY_ZERO);
+    return val / other.val;
+}
+
+Integer Integer::rem(const Integer& other) const {
+    if (other.val == 0) 
+        throw std::domain_error(IntegerError::DIVISION_BY_ZERO);
+    return val % other.val;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Integer& integer) {
     stream << integer.val;
     return stream;
@@ -130,10 +143,12 @@ const IntegerError IntegerError::ADDITION_OVERFLOW = IntegerError(0);
 const IntegerError IntegerError::SUBSTRACTION_OVERFLOW = IntegerError(1);
 const IntegerError IntegerError::TAKING_OPPOSITE_OVERFLOW = IntegerError(2);
 const IntegerError IntegerError::MULTIPLICATION_OVERFLOW = IntegerError(3);
+const IntegerError IntegerError::DIVISION_BY_ZERO = IntegerError(4);
 
-const char* IntegerError::message[4] = {
+const char* IntegerError::message[5] = {
         "Integer addition overflow",
         "Integer substraction overflow",
         "Taking opposite integer overflow",
         "Integer multiplication overflow",
+        "Division by zero",
     };
