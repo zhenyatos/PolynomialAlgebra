@@ -134,6 +134,17 @@ Integer Integer::rem(const Integer& other) const {
     return val % other.val;
 }
 
+Integer GCD(const Integer& a, const Integer& b) {
+    int x = int(a);
+    int y = int(b);
+    while (y != 0) {
+        int r = x % y;
+        x = y;
+        y = r;
+    }
+    return x;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Integer& integer) {
     stream << integer.val;
     return stream;

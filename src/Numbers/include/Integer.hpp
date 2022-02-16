@@ -34,6 +34,9 @@ private:
 Integer operator+(Integer a, const Integer& b);
 Integer operator-(Integer a, const Integer& b);
 Integer operator*(Integer a, const Integer& b);
+
 inline Integer norm(const Integer& other) { return other.abs(); }
 inline Integer div(const Integer a, const Integer& b) { return a.div(b); }
 inline Integer rem(const Integer& a, const Integer& b) { return a.rem(b); }
+
+Integer GCD(const Integer& a, const Integer& b);

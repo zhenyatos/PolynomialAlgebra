@@ -1,4 +1,5 @@
 #include "Integer.hpp"
+#include "Rational.hpp"
 #include <iostream>
 #include <exception>
 #include <limits>
@@ -12,6 +13,7 @@ int main() {
         a = b;
         b = r;
     }
-    std::cout << a;
+    std::cout << a << " " << GCD(a, b);
+    Rational q(3, 2);
     return 0;
 }
