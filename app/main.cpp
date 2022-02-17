@@ -5,15 +5,10 @@
 #include <limits>
 
 int main() {
-    Integer a = 8;
-    Integer b = 34;
-    Integer res;
-    while (b != 0) {
-        Integer r = a.rem(b);
-        a = b;
-        b = r;
-    }
-    std::cout << a << " " << GCD(a, b);
-    Rational q(3, 2);
+    Rational a(3, 2);
+    Rational b(6, 4);
+    Rational c(-1, -2);
+    Rational d(1, 2);
+    std::cout << (a == b) << " " << (a > c) << " " << (c != d);
     return 0;
 }

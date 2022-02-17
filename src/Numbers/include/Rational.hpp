@@ -9,6 +9,13 @@ public:
     Rational& operator=(const Rational& other);
     ~Rational() = default;
 
+    bool operator==(const Rational& other) const;
+    bool operator!=(const Rational& other) const;
+    bool operator>=(const Rational& other) const;
+    bool operator>(const Rational& other) const;
+    bool operator<=(const Rational& other) const;
+    bool operator<(const Rational& other) const;
+
 private:
     Integer n;
     Integer m;

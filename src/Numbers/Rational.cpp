@@ -37,14 +37,44 @@ Rational& Rational::operator=(const Rational& other) {
     return *this;
 }
 
+bool Rational::operator==(const Rational& other) const {
+    return (n == other.n) && (m == other.m);
+}
+
+bool Rational::operator!=(const Rational& other) const {
+    return (n != other.n) || (m != other.m);
+}
+
+bool Rational::operator>=(const Rational& other) const {
+    return n * other.m >= other.n * m;
+}
+
+bool Rational::operator>(const Rational& other) const {
+    return n * other.m > other.n * m;
+}
+
+bool Rational::operator<=(const Rational& other) const {
+    return n * other.m <= other.n * m;
+}
+
+bool Rational::operator<(const Rational& other) const {
+    return n * other.m < other.n * m;
+}
+
 void Rational::simplify() {
     if (n == 0) {
         m = 1;
         return;
     }
+
     Integer gcd = GCD(n, m);
     n = div(n, gcd);
     m = div(m, gcd);
+
+    if (m < 0) {
+        m = -m;
+        n = -n;
+    }
 }
 
 const RationalError RationalError::DIVISION_BY_ZERO = RationalError(0);
