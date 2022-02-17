@@ -4,13 +4,14 @@
 class RationalError {
 public:
     static const RationalError DIVISION_BY_ZERO;
+    static const RationalError NO_INVERSE;
 
     constexpr operator const char*() {
         return message[code];
     };
 
 private:
-    static const char* message[1];
+    static const char* message[2];
     
     size_t code;
 
@@ -35,6 +36,41 @@ Rational& Rational::operator=(const Rational& other) {
     n = other.n;
     m = other.m;
     return *this;
+}
+
+Rational& Rational::operator+=(const Rational& other) {
+    n *= other.m;
+    n += other.n * m;
+    m *= other.m;
+    simplify();
+    return *this;
+}
+
+Rational& Rational::operator-=(const Rational& other) {
+    (*this) += -other;
+    return *this;
+}
+
+Rational& Rational::operator*=(const Rational& other) {
+    n *= other.n;
+    m *= other.m;
+    simplify();
+    return *this;
+}
+
+Rational& Rational::operator/=(const Rational& other) {
+    (*this) *= other.inv(); 
+    return *this;
+}
+
+Rational Rational::operator-() const {
+    return Rational(-n, m);
+}
+
+Rational Rational::inv() const {
+    if (n == 0)
+        throw std::domain_error(RationalError::NO_INVERSE);
+    return Rational(m, n);
 }
 
 bool Rational::operator==(const Rational& other) const {
@@ -77,8 +113,30 @@ void Rational::simplify() {
     }
 }
 
-const RationalError RationalError::DIVISION_BY_ZERO = RationalError(0);
+Rational operator+(Rational a, const Rational& b) {
+    a += b;
+    return a;
+}
 
-const char* RationalError::message[1] = {
+Rational operator-(Rational a, const Rational& b) {
+    a -= b;
+    return a;
+}
+
+Rational operator*(Rational a, const Rational& b) {
+    a *= b;
+    return a;
+}
+
+Rational operator/(Rational a, const Rational& b) {
+    a /= b;
+    return a;
+}
+
+const RationalError RationalError::DIVISION_BY_ZERO = RationalError(0);
+const RationalError RationalError::NO_INVERSE = RationalError(1);
+
+const char* RationalError::message[2] = {
         "Division by zero",
+        "Zero has no multiplicative inverse",
     };
