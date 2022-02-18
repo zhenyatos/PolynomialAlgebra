@@ -19,6 +19,7 @@ int main() {
     std::cout << (a * d == mult) << " " << (a / d == div) << std::endl;
 
     Rational zero(0, 1);
+    std::cout << zero << " " << zero + Integer(1) << std::endl;
     try { 
         zero.inv(); 
     } catch (std::exception& err) {

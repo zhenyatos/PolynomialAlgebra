@@ -133,6 +133,14 @@ Rational operator/(Rational a, const Rational& b) {
     return a;
 }
 
+Rational Rational::abs() const {
+    return Rational(n.abs(), m);
+}
+    
+std::ostream& operator<<(std::ostream& stream, const Rational& rational) {
+    stream << rational.n << "//" << rational.m;
+}
+
 const RationalError RationalError::DIVISION_BY_ZERO = RationalError(0);
 const RationalError RationalError::NO_INVERSE = RationalError(1);
 

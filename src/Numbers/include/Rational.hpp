@@ -23,6 +23,10 @@ public:
     bool operator<=(const Rational& other) const;
     bool operator<(const Rational& other) const;
 
+    Rational abs() const;
+    
+    friend std::ostream& operator<<(std::ostream& stream, const Rational& rational);
+
 private:
     Integer n;
     Integer m;
