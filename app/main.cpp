@@ -28,8 +28,10 @@ int main() {
     std::cout << p.deg() << std::endl;
     Polynomial<Integer> q({1, 2, 3, 0, 0});
     std::cout << q.deg() << std::endl;
-    auto t = p + q;
-    std::cout << p << " +\n" << q << " =\n" << t << std::endl;
-    std::cout << t(1);
+    auto t1 = p + q;
+    std::cout << p << " +\n" << q << " =\n" << t1 << std::endl;
+    std::cout << t1(1) << std::endl;
+    auto t2 = p * q;
+    std::cout << t2;
     return 0;
 }

@@ -13,12 +13,13 @@ public:
     ~Polynomial() = default;
 
     Polynomial& operator+=(const Polynomial& other);
+    Polynomial& operator*=(const Polynomial& other);
     
     T operator()(T x) const;
     int deg() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Polynomial<T>& p) {
-        if (p.coeff.size() != 0) {
+        if (!p.isZero()) {
             stream << p.coeff[0];
             for (size_t i = 1; i < p.coeff.size(); i++)
                 stream << " + " << p.coeff[i] << ".x^" << i;
@@ -33,6 +34,7 @@ private:
     std::vector<T> coeff;
 
     void reduce();
+    inline bool isZero() const { return (coeff.size() == 0); }
 };
 
 template<class T>
@@ -60,7 +62,7 @@ Polynomial<T>& Polynomial<T>::operator=(const Polynomial<T>& other) {
 
 template<class T>
 Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
-    if (coeff.size() == 0)
+    if (isZero())
         return *this = other;
     if (coeff.size() < other.coeff.size())
         coeff.resize(other.coeff.size(), T(0));
@@ -70,8 +72,28 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
 }
 
 template<class T>
+Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T>& other) {
+    if (isZero())
+        return *this;
+    if (other.isZero()) {
+        *this = other;
+        return *this;
+    }
+    std::vector<T> resCoeff(deg() + other.deg() + 1);
+    for (int k = 0; k < resCoeff.size(); k++) {
+        for (int i = 0; i <= k; i++) {
+            if (i > deg() || k - i > other.deg())
+                continue;
+            resCoeff[k] += coeff[i] * other.coeff[k - i];
+        }
+    }
+    coeff = resCoeff;
+    return *this;
+}
+
+template<class T>
 T Polynomial<T>::operator()(T x) const {
-    if (coeff.size() == 0)
+    if (isZero())
         return T(0);
     if (x == T(0)) 
         return coeff[0];
@@ -84,7 +106,7 @@ T Polynomial<T>::operator()(T x) const {
 
 template<class T>
 int Polynomial<T>::deg() const {
-    if (coeff.size() == 0)
+    if (isZero())
         return INT_MIN;
     return coeff.size() - 1;
 }
@@ -101,5 +123,11 @@ void Polynomial<T>::reduce() {
 template<class T>
 Polynomial<T> operator+(Polynomial<T> a, const Polynomial<T>& b) {
     a += b;
+    return a;
+}
+
+template<class T>
+Polynomial<T> operator*(Polynomial<T> a, const Polynomial<T>& b) { 
+    a *= b;
     return a;
 }
