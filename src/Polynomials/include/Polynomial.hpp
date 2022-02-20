@@ -13,7 +13,8 @@ public:
     ~Polynomial() = default;
 
     Polynomial& operator+=(const Polynomial& other);
-
+    
+    T operator()(T x) const;
     int deg() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Polynomial<T>& p) {
@@ -69,6 +70,19 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
 }
 
 template<class T>
+T Polynomial<T>::operator()(T x) const {
+    if (coeff.size() == 0)
+        return T(0);
+    if (x == T(0)) 
+        return coeff[0];
+    int i = coeff.size() - 1;
+    T res = coeff[i];
+    for(i--; i >= 0; i--)
+        (res *= x) += coeff[i]; 
+    return res;
+}
+
+template<class T>
 int Polynomial<T>::deg() const {
     if (coeff.size() == 0)
         return INT_MIN;
@@ -77,9 +91,15 @@ int Polynomial<T>::deg() const {
 
 template<class T>
 void Polynomial<T>::reduce() {
-    size_t index = coeff.size() - 1;
+    int index = coeff.size() - 1;
     for (; index >= 0; index--)
         if (coeff[index] != 0)
             break;
     coeff.resize(index+1);
+}
+
+template<class T>
+Polynomial<T> operator+(Polynomial<T> a, const Polynomial<T>& b) {
+    a += b;
+    return a;
 }
