@@ -1,5 +1,6 @@
 #include "Integer.hpp"
 #include "Rational.hpp"
+#include "Polynomial.hpp"
 #include <iostream>
 #include <exception>
 #include <limits>
@@ -20,10 +21,14 @@ int main() {
 
     Rational zero(0, 1);
     std::cout << zero << " " << zero + Integer(1) << std::endl;
-    try { 
-        zero.inv(); 
-    } catch (std::exception& err) {
-        std::cout << "Damn\n";
-    }
+
+    Polynomial<Rational> z;
+    std::cout << z << " " << z.deg() << std::endl;
+    Polynomial<Integer> p({1, 0, -2});
+    std::cout << p.deg() << std::endl;
+    Polynomial<Integer> q({1, 2, 3, 0, 0});
+    std::cout << q.deg() << std::endl;
+    p += q;
+    std::cout << p;
     return 0;
 }

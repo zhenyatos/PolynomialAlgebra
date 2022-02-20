@@ -1,1 +1,2 @@
 add_subdirectory(Numbers)
+add_subdirectory(Polynomials)
