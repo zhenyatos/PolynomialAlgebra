@@ -40,4 +40,6 @@ int main() {
         std::cout << "After raising 10 to the power of " << k << ":\n";
         std::cout << err.what() << std::endl;
     } 
+    
+    return 0;
 }
