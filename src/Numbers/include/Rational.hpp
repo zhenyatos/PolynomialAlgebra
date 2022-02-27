@@ -5,6 +5,7 @@
 class Rational {
 public:
     Rational(Integer n, Integer m = 1);
+    Rational(int n);
     Rational(const Rational& other);
     Rational& operator=(const Rational& other);
     ~Rational() = default;
