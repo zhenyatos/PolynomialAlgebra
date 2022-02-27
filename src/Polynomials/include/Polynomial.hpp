@@ -13,7 +13,9 @@ public:
     ~Polynomial() = default;
 
     Polynomial& operator+=(const Polynomial& other);
+    Polynomial& operator-=(const Polynomial& other);
     Polynomial& operator*=(const Polynomial& other);
+    Polynomial operator-() const; 
     
     T operator()(T x) const;
     int deg() const;
@@ -72,6 +74,17 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
 }
 
 template<class T>
+Polynomial<T>& Polynomial<T>::operator-=(const Polynomial<T>& other) {
+    if (isZero())
+        return *this = other;
+    if (coeff.size() < other.coeff.size())
+        coeff.resize(other.coeff.size(), T(0));
+    std::transform(coeff.begin(), coeff.end(), other.coeff.begin(), coeff.begin(), std::minus<T>());
+    reduce();
+    return *this;
+}
+
+template<class T>
 Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T>& other) {
     if (isZero())
         return *this;
@@ -89,6 +102,16 @@ Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T>& other) {
     }
     coeff = resCoeff;
     return *this;
+}
+
+template<class T>
+Polynomial<T> Polynomial<T>::operator-() const {
+    if (isZero())
+        return Polynomial();
+    Polynomial res = *this;
+    for(int i = 0; i < coeff.size(); i++)
+        res.coeff[i] = -res.coeff[i];
+    return res;
 }
 
 template<class T>
@@ -123,6 +146,12 @@ void Polynomial<T>::reduce() {
 template<class T>
 Polynomial<T> operator+(Polynomial<T> a, const Polynomial<T>& b) {
     a += b;
+    return a;
+}
+
+template<class T>
+Polynomial<T> operator-(Polynomial<T> a, const Polynomial<T>& b) {
+    a -= b;
     return a;
 }
 

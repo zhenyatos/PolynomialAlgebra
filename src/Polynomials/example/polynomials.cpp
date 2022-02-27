@@ -5,7 +5,7 @@
 int main() { 
     Polynomial<Integer> p({1, 0, -2});
     std::cout << "Polynomial p = " << p << " of degree " << p.deg() << std::endl;
-    Polynomial<Integer> q({1, 2, 3, 0, 0});
+    Polynomial<Integer> q({1, 2, 2, 0, 0});
     std::cout << "Polynomial q = " << q << " of degree " << q.deg() << std::endl;
     
     std::cout << "\nOne can evaluate the polynomial at some point:\n";
@@ -14,11 +14,13 @@ int main() {
     
     std::cout << "\nOne can calculate the sum of two polynomials:\n";
     std::cout << "p + q = " << p + q << std::endl;
+    std::cout << "\nAlso, one can calculate the difference of two polynomials:\n";
+    std::cout << "p - q = " << p - q << std::endl;
 
     std::cout << "\nOne can multiply two polynomials:";
     auto t = p * q;
     std::cout << "\nt = p * q = " << p * q;
-    std::cout << "We have obtained the polynomial of degree " << t.deg() << std::endl;
+    std::cout << "\nWe have obtained the polynomial of degree " << t.deg() << std::endl;
 
     std::cout << "\nThe degree of the zero polynomial is " << Polynomial<Integer>().deg();
     std::cout << "\nIt is smaller than any other possible degree except itself, but that's ok, I guess" << std::endl;
@@ -30,6 +32,6 @@ int main() {
     std::cout << "\nPolynomial v = " << v << " of degree " << v.deg() << std::endl;
 
     std::cout << "\nv * v = " << v * v << std::endl;
-    
+
     return 0;
 }
