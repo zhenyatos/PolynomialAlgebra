@@ -15,6 +15,7 @@ public:
     Polynomial& operator+=(const Polynomial& other);
     Polynomial& operator-=(const Polynomial& other);
     Polynomial& operator*=(const Polynomial& other);
+    Polynomial& operator*=(const T& a);
     Polynomial operator-() const; 
     
     T operator()(T x) const;
@@ -105,6 +106,19 @@ Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T>& other) {
 }
 
 template<class T>
+Polynomial<T>& Polynomial<T>::operator*=(const T& a) {
+    if (isZero())
+        return *this;
+    if (a == T(0)) {
+        *this = Polynomial();
+        return *this;
+    }
+    for (int i = 0; i < coeff.size(); i++)
+        coeff[i] *= a;
+    return *this;
+}
+
+template<class T>
 Polynomial<T> Polynomial<T>::operator-() const {
     if (isZero())
         return Polynomial();
@@ -140,7 +154,10 @@ void Polynomial<T>::reduce() {
     for (; index >= 0; index--)
         if (coeff[index] != 0)
             break;
-    coeff.resize(index+1);
+    if (index != 0)
+        coeff.resize(index+1);
+    else
+        coeff.clear();
 }
 
 template<class T>
@@ -159,4 +176,10 @@ template<class T>
 Polynomial<T> operator*(Polynomial<T> a, const Polynomial<T>& b) { 
     a *= b;
     return a;
+}
+
+template<class T>
+Polynomial<T> operator*(Polynomial<T> p, const T& a) {
+    p *= a;
+    return p;
 }

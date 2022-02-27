@@ -22,6 +22,10 @@ int main() {
     std::cout << "\nt = p * q = " << p * q;
     std::cout << "\nWe have obtained the polynomial of degree " << t.deg() << std::endl;
 
+    std::cout << "\nAlso, it's possible to multiply a polynomial by a scalar:";
+    p *= 2;
+    std::cout << "\np * 2 = " << p << std::endl;
+
     std::cout << "\nThe degree of the zero polynomial is " << Polynomial<Integer>().deg();
     std::cout << "\nIt is smaller than any other possible degree except itself, but that's ok, I guess" << std::endl;
 
