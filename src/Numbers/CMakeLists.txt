@@ -9,3 +9,4 @@ set_target_properties(numbers PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ..\\..\\..\\bin
         )
 
+add_subdirectory(example)
