@@ -1,7 +1,8 @@
 #pragma once
-#include <vector>
-#include <limits>
 #include <algorithm>
+#include <exception>
+#include <limits>
+#include <vector>
 
 template<class T>
 class Polynomial {
@@ -21,6 +22,10 @@ public:
     T operator()(T x) const;
     int deg() const;
 
+    std::pair<Polynomial, Polynomial> divRem(const Polynomial& other) const;
+    Polynomial div(const Polynomial& other) const;
+    Polynomial rem(const Polynomial& other) const;
+
     friend std::ostream& operator<<(std::ostream& stream, const Polynomial<T>& p) {
         if (!p.isZero()) {
             stream << p.coeff[0];
@@ -38,6 +43,7 @@ private:
 
     void reduce();
     inline bool isZero() const { return (coeff.size() == 0); }
+    inline T lead() const { return coeff.back(); }
 };
 
 template<class T>
@@ -69,7 +75,8 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
         return *this = other;
     if (coeff.size() < other.coeff.size())
         coeff.resize(other.coeff.size(), T(0));
-    std::transform(coeff.begin(), coeff.end(), other.coeff.begin(), coeff.begin(), std::plus<T>());
+    int size = std::min(coeff.size(), other.coeff.size());
+    std::transform(coeff.begin(), coeff.begin() + size, other.coeff.begin(), coeff.begin(), std::plus<T>());
     reduce();
     return *this;
 }
@@ -77,10 +84,11 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T>& other) {
 template<class T>
 Polynomial<T>& Polynomial<T>::operator-=(const Polynomial<T>& other) {
     if (isZero())
-        return *this = other;
+        return *this = -other;
     if (coeff.size() < other.coeff.size())
-        coeff.resize(other.coeff.size(), T(0));
-    std::transform(coeff.begin(), coeff.end(), other.coeff.begin(), coeff.begin(), std::minus<T>());
+        coeff.resize(other.coeff.size(), T(0)); 
+    int size = std::min(coeff.size(), other.coeff.size());
+    std::transform(coeff.begin(), coeff.begin() + size, other.coeff.begin(), coeff.begin(), std::minus<T>());
     reduce();
     return *this;
 }
@@ -149,12 +157,46 @@ int Polynomial<T>::deg() const {
 }
 
 template<class T>
+std::pair<Polynomial<T>, Polynomial<T>> Polynomial<T>::divRem(const Polynomial<T>& other) const {
+    if (other.isZero())
+        throw std::domain_error("Division by zero");
+    
+    if (other.deg() == 0)
+        return {*this * other.coeff[0].inv(), Polynomial()};
+
+    Polynomial q;
+    Polynomial r = *this;
+
+    while (r.deg() >= other.deg()) {
+        int deg = r.deg() - other.deg();
+        std::vector<T> xCoeff(deg+1, T(0));
+        xCoeff[deg] = r.lead() / other.lead();
+        Polynomial t = Polynomial(xCoeff);
+        
+        q += t;
+        r -= t * other;
+    }
+
+    return {q, r};
+}
+
+template<class T>
+Polynomial<T> Polynomial<T>::div(const Polynomial<T>& other) const {
+    return divRem(other).first;
+}
+
+template<class T>
+Polynomial<T> Polynomial<T>::rem(const Polynomial<T>& other) const {
+    return divRem(other).second;
+}
+
+template<class T>
 void Polynomial<T>::reduce() {
     int index = coeff.size() - 1;
     for (; index >= 0; index--)
-        if (coeff[index] != 0)
+        if (coeff[index] != T(0))
             break;
-    if (index != 0)
+    if (coeff[index] != T(0))
         coeff.resize(index+1);
     else
         coeff.clear();
