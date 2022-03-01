@@ -225,3 +225,12 @@ Polynomial<T> operator*(Polynomial<T> p, const T& a) {
     p *= a;
     return p;
 }
+
+template<class T>
+inline Polynomial<T> norm(const Polynomial<T>& a) { return a.deg(); }
+
+template<class T>
+inline Polynomial<T> div(const Polynomial<T> a, const Polynomial<T>& b) { return a.div(b); }
+
+template<class T>
+inline Polynomial<T> rem(const Polynomial<T>& a, const Polynomial<T>& b) { return a.rem(b); }
