@@ -28,6 +28,12 @@ Rational::Rational(Integer n, Integer m)
     simplify();
 }
 
+Rational::Rational(int n)
+    : n(n), m(1)
+{
+    simplify();
+}
+
 Rational::Rational(const Rational& other)
     : n(other.n), m(other.m)
 {}
