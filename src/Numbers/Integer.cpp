@@ -18,7 +18,7 @@ private:
     
     size_t code;
 
-    IntegerError(int code) 
+    IntegerError(size_t code) 
         : code(code)
     {};
 };
