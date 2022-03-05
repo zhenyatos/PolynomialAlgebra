@@ -3,9 +3,10 @@
 
 int main() {
     Modular<3> a(1);
-    Modular<3> b(3);
+    Modular<3> b(2);
     Modular<3> c = a + b;
-    std::cout << c << std::endl;
+    Modular<3> d = a - b;
+    std::cout << c << " " << d << std::endl;
 
     try {
         Modular<-1> bad;

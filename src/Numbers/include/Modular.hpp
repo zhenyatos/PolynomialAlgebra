@@ -13,6 +13,9 @@ public:
     ~Modular() = default;
 
     Modular& operator+=(const Modular& other);
+    Modular& operator-=(const Modular& other);
+
+    Modular operator-() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Modular& modular) {
         stream << "[" << modular.val << ", " << N << "]";
@@ -34,7 +37,7 @@ Modular<N>::Modular() {
 template<int N>
 Modular<N>::Modular(Integer a) {
     checkModulus();
-    val = a.rem(N);
+    val = (a.rem(N) + N).rem(N);
 }
 
 template<int N>
@@ -57,6 +60,18 @@ Modular<N>& Modular<N>::operator+=(const Modular<N>& other) {
 }
 
 template<int N>
+Modular<N>& Modular<N>::operator-=(const Modular<N>& other) {
+    val += (N - other.val);
+    val = val.rem(N);
+    return *this;
+}
+
+template<int N>
+Modular<N> Modular<N>::operator-() const {
+    return Modular(N - val);
+}
+
+template<int N>
 void Modular<N>::checkModulus() {
     if (N <= 0)
         throw std::domain_error(ModularError::NONPOSITIVE_MODULUS);
@@ -65,5 +80,11 @@ void Modular<N>::checkModulus() {
 template<int N>
 Modular<N> operator+(Modular<N> a, const Modular<N>& b) {
     a += b;
+    return a;
+}
+
+template<int N>
+Modular<N> operator-(Modular<N> a, const Modular<N>& b) {
+    a -= b;
     return a;
 }
