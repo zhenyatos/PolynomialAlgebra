@@ -14,8 +14,10 @@ public:
 
     Modular& operator+=(const Modular& other);
     Modular& operator-=(const Modular& other);
-
+    Modular& operator*=(const Modular& other);
+    Modular& operator/=(const Modular& other);
     Modular operator-() const;
+    Modular inv() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Modular& modular) {
         stream << "[" << modular.val << ", " << N << "]";
@@ -67,8 +69,45 @@ Modular<N>& Modular<N>::operator-=(const Modular<N>& other) {
 }
 
 template<int N>
+Modular<N>& Modular<N>::operator*=(const Modular<N>& other) {
+    val *= other.val;
+    val = val.rem(N);
+    return *this;
+}
+
+template<int N>
+Modular<N>& Modular<N>::operator/=(const Modular<N>& other) {
+    val *= other.inv();
+    return *this;
+}
+
+template<int N>
 Modular<N> Modular<N>::operator-() const {
     return Modular(N - val);
+}
+
+template<int N>
+Modular<N> Modular<N>::inv() const {
+    if (val == 0)
+        throw std::domain_error(ModularError::NO_INVERSE);
+    Integer x = N;
+    Integer y = val;
+    Integer b2, b1, b0 = 1;
+
+    while (y != 0) {
+        Integer r = x.rem(y);
+        Integer q = x.div(y);
+        x = y;
+        y = r;
+        b2 = b1 - q * b0;
+        b0 = b1;
+        b1 = b2;
+    }
+
+    if (x != 1)
+        throw std::domain_error(ModularError::NO_INVERSE); 
+
+    return Modular<N>(b2);
 }
 
 template<int N>
@@ -86,5 +125,17 @@ Modular<N> operator+(Modular<N> a, const Modular<N>& b) {
 template<int N>
 Modular<N> operator-(Modular<N> a, const Modular<N>& b) {
     a -= b;
+    return a;
+}
+
+template<int N>
+Modular<N> operator*(Modular<N> a, const Modular<N>& b) {
+    a *= b;
+    return a;
+}
+
+template<int N>
+Modular<N> operator/(Modular<N> a, const Modular<N>& b) {
+    a /= b;
     return a;
 }
