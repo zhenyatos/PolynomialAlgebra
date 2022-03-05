@@ -19,6 +19,9 @@ public:
     Modular operator-() const;
     Modular inv() const;
 
+    bool operator==(const Modular& other);
+    bool operator!=(const Modular& other);
+
     friend std::ostream& operator<<(std::ostream& stream, const Modular& modular) {
         stream << "[" << modular.val << ", " << N << "]";
         return stream;
@@ -111,6 +114,16 @@ Modular<N> Modular<N>::inv() const {
         throw std::domain_error(ModularError::NO_INVERSE); 
 
     return Modular<N>(b2);
+}
+
+template<int N>
+bool Modular<N>::operator==(const Modular<N>& other) {
+    return val == other.val;
+}
+
+template<int N>
+bool Modular<N>::operator!=(const Modular<N>& other) {
+    return val != other.val;
 }
 
 template<int N>
