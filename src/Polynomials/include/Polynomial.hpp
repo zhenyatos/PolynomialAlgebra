@@ -29,7 +29,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const Polynomial<T>& p) {
         if (!p.isZero()) {
             stream << p.coeff[0];
-            for (size_t i = 1; i < p.coeff.size(); i++)
+            for (int i = 1; i <= p.deg(); i++)
                 stream << " + " << p.coeff[i] << ".x^" << i;
         }
         else
@@ -37,6 +37,8 @@ public:
         
         return stream;
     }
+
+    static Polynomial Monomial(T coeff, int degree);
     
 private:
     std::vector<T> coeff;
@@ -121,7 +123,7 @@ Polynomial<T>& Polynomial<T>::operator*=(const T& a) {
         *this = Polynomial();
         return *this;
     }
-    for (int i = 0; i < coeff.size(); i++)
+    for (int i = 0; i <= deg(); i++)
         coeff[i] *= a;
     return *this;
 }
@@ -131,7 +133,7 @@ Polynomial<T> Polynomial<T>::operator-() const {
     if (isZero())
         return Polynomial();
     Polynomial res = *this;
-    for(int i = 0; i < coeff.size(); i++)
+    for(int i = 0; i <= deg(); i++)
         res.coeff[i] = -res.coeff[i];
     return res;
 }
@@ -142,7 +144,7 @@ T Polynomial<T>::operator()(T x) const {
         return T(0);
     if (x == T(0)) 
         return coeff[0];
-    int i = coeff.size() - 1;
+    int i = deg();
     T res = coeff[i];
     for(i--; i >= 0; i--)
         (res *= x) += coeff[i]; 
@@ -169,12 +171,9 @@ std::pair<Polynomial<T>, Polynomial<T>> Polynomial<T>::divRem(const Polynomial<T
 
     while (r.deg() >= other.deg()) {
         int deg = r.deg() - other.deg();
-        std::vector<T> xCoeff(deg+1, T(0));
-        xCoeff[deg] = r.lead() / other.lead();
-        Polynomial t = Polynomial(xCoeff);
-        
-        q += t;
-        r -= t * other;
+        Polynomial m = Polynomial::Monomial(r.lead() / other.lead(), deg);
+        q += m;
+        r -= m * other;
     }
 
     return {q, r};
@@ -191,8 +190,22 @@ Polynomial<T> Polynomial<T>::rem(const Polynomial<T>& other) const {
 }
 
 template<class T>
+Polynomial<T> Polynomial<T>::Monomial(T coeff, int degree) {
+    if (degree < 0)
+        throw std::domain_error("Can't create the monomial of negative degree");
+
+    if (coeff == T(0))
+        return Polynomial<T>();
+
+    std::vector<T> polynomialCoeff(degree+1, T(0));
+    polynomialCoeff[degree] = coeff;
+
+    return Polynomial<T>(polynomialCoeff);
+}
+
+template<class T>
 void Polynomial<T>::reduce() {
-    int index = coeff.size() - 1;
+    int index = deg();
     for (; index >= 0; index--)
         if (coeff[index] != T(0))
             break;

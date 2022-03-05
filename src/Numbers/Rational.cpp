@@ -15,7 +15,7 @@ private:
     
     size_t code;
 
-    RationalError(int code) 
+    RationalError(size_t code) 
         : code(code)
     {};
 };

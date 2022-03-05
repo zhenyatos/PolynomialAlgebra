@@ -1,6 +1,7 @@
 add_library(numbers SHARED
         Integer.cpp
-        Rational.cpp)
+        Rational.cpp
+        ModularError.cpp)
 
 target_include_directories(numbers PUBLIC include)
 

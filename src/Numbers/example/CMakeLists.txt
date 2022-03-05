@@ -15,3 +15,12 @@ set_target_properties(e-rationals PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ..\\..\\..\\..\\bin
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ..\\..\\..\\..\\bin
         )
+
+add_executable(e-modulars modulars.cpp)
+
+target_link_libraries(e-modulars numbers)
+        
+set_target_properties(e-modulars PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ..\\..\\..\\..\\bin
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ..\\..\\..\\..\\bin
+        )
