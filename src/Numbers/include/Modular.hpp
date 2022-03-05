@@ -90,21 +90,24 @@ template<int N>
 Modular<N> Modular<N>::inv() const {
     if (val == 0)
         throw std::domain_error(ModularError::NO_INVERSE);
+    if (val == 1)
+        return Modular<N>(1);
     Integer x = N;
     Integer y = val;
-    Integer b2, b1, b0 = 1;
+    Integer b2, b1 = 1, b0 = 0;
+    Integer r, q;
 
-    while (y != 0) {
-        Integer r = x.rem(y);
-        Integer q = x.div(y);
+    do {
+        r = x.rem(y);
+        q = x.div(y);
         x = y;
         y = r;
-        b2 = b1 - q * b0;
+        b2 = b0 - q * b1;
         b0 = b1;
         b1 = b2;
-    }
+    } while (r != 0 && r != 1);
 
-    if (x != 1)
+    if (r == 0)
         throw std::domain_error(ModularError::NO_INVERSE); 
 
     return Modular<N>(b2);

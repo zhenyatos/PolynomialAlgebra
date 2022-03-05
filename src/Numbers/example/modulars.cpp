@@ -16,8 +16,8 @@ int main() {
     Modular<5> e = b * b;
     std::cout << c << " " << d << " " << e << std::endl;
 
-    Modular<4> t(3);
-    std::cout << t.inv() * t << std::endl;
+    Modular<13> t(5);
+    std::cout << t.inv() << std::endl;
 
     try {
         Modular<4>(2).inv();
