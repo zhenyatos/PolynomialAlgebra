@@ -6,7 +6,12 @@ int main() {
     for (Token token : tokens)
         std::cout << token.first.name() << " " << token.second << std::endl;
     std::cout << "\n\n";
-    tokens = Parser::parse("print a + b;");
+    try {
+    tokens = Parser::parse("print a + b;>");
+    } catch(std::exception& err) {
+        std::cout << err.what();
+        return 0;
+    }
     for (Token token : tokens)
         std::cout << token.first.name() << " " << token.second << std::endl;
     return 0;
