@@ -72,7 +72,7 @@ std::vector<Token> Parser::parse(std::string line) {
         }
         // bad
         else 
-            throw std::invalid_argument("Unexpected character " + line[0]);
+            throw std::invalid_argument("Unexpected character " + line.substr(0, 1));
     }
 
     return result;
