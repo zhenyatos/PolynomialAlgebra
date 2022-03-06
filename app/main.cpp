@@ -1,17 +1,13 @@
-#include "Integer.hpp"
-#include "Rational.hpp"
-#include "Modular.hpp"
-#include "Polynomial.hpp"
+#include "Parser.hpp"
 #include <iostream>
 
-template<int N>
-Modular<N> M(Integer a) {
-    return Modular<N>(a);
-}
-
 int main() {
-    Polynomial<Modular<3>> a({M<3>(1), M<3>(2)});
-    std::cout << a * a;
-    std::cout << "\na([1, 3]) = " << a(M<3>(1));
+    std::vector<Token> tokens = Parser::parse("var a = -1//3 ;");
+    for (Token token : tokens)
+        std::cout << token.first.name() << " " << token.second << std::endl;
+    std::cout << "\n\n";
+    tokens = Parser::parse("print a + b;");
+    for (Token token : tokens)
+        std::cout << token.first.name() << " " << token.second << std::endl;
     return 0;
 }

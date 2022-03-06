@@ -1,5 +1,5 @@
 #include "Integer.hpp"
-#include <exception>
+#include <stdexcept>
 
 class IntegerError {
 public:

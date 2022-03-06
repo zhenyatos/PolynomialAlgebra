@@ -1,7 +1,7 @@
 #pragma once
 #include "Integer.hpp"
 #include "ModularError.hpp"
-#include <exception>
+#include <stdexcept>
 
 template<int N>
 class Modular {
