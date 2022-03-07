@@ -7,7 +7,7 @@ int main() {
         std::cout << token.first.name() << " " << token.second << std::endl;
     std::cout << "\n\n";
     try {
-    tokens = Parser::parse("print a + b;>");
+    tokens = Parser::parse("print > a + b;");
     } catch(std::exception& err) {
         std::cout << err.what();
         return 0;

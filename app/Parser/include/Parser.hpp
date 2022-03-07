@@ -10,6 +10,7 @@ public:
     static const TokenName NUMBER;
     static const TokenName IDENTIFIER;
     static const TokenName SEPARATOR;
+    static const TokenName END_OF_COMMAND;
 
     bool operator==(const TokenName& other) { return code == other.code; }
     bool operator!=(const TokenName& other) { return code != other.code; }
@@ -17,7 +18,7 @@ public:
     const char* name() const { return names[code]; }
 
 private:
-    static const char* names[5];
+    static const char* names[6];
     size_t code;
 
     TokenName(size_t code) 
