@@ -1,8 +1,8 @@
-add_library(parser SHARED Parser.cpp)
+add_library(language SHARED Lexer.cpp)
 
-target_include_directories(parser PUBLIC include)
+target_include_directories(language PUBLIC include)
 
-set_target_properties(parser PROPERTIES
+set_target_properties(language PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ..\\..\\..\\bin
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ..\\..\\..\\bin
         )

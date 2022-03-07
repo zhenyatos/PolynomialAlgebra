@@ -1,11 +1,11 @@
-#include "Parser.hpp"
+#include "Lexer.hpp"
 #include <stdexcept>
 
 const std::set<std::string> reservedWords = {
         "var", "print", "X"
     };
 
-std::vector<Token> Parser::parse(std::string line) {
+std::vector<Token> Lexer::parse(std::string line) {
     std::vector<Token> result;
 
     while(line.size() != 0) {

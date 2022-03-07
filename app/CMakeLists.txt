@@ -1,10 +1,10 @@
-add_executable(app main.cpp)
+add_executable(palgebra main.cpp)
 
-target_link_libraries(app PUBLIC numbers polynomials parser)
+target_link_libraries(palgebra PUBLIC language)
 
-set_target_properties(app PROPERTIES
+set_target_properties(palgebra PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ..\\..\\bin
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ..\\..\\bin
         )
 
-add_subdirectory(Parser)
+add_subdirectory(Language)

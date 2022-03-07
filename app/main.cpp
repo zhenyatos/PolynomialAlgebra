@@ -1,17 +1,17 @@
-#include "Parser.hpp"
+#include "Lexer.hpp"
 #include <iostream>
 
 int main() {
-    std::vector<Token> tokens = Parser::parse("var a = -1//3 ;");
+    std::vector<Token> tokens = Lexer::parse("var a = -1//3 ;");
     for (Token token : tokens)
         std::cout << token.first.name() << " " << token.second << std::endl;
     std::cout << "\n\n";
     try {
-    tokens = Parser::parse("print > a + b;");
+    tokens = Lexer::parse("print > a + b;");
     } catch(std::exception& err) {
         std::cout << err.what();
     }
-    tokens = Parser::parse("a = (b + 1) * 2");
+    tokens = Lexer::parse("a = (b + 1) * 2");
     for (Token token : tokens)
         std::cout << token.first.name() << " " << token.second << std::endl;
     return 0;
