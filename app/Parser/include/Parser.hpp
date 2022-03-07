@@ -7,9 +7,11 @@ class TokenName {
 public:
     static const TokenName RESERVED_WORD;
     static const TokenName OPERATOR;
+    static const TokenName ASSIGNMENT;
     static const TokenName NUMBER;
     static const TokenName IDENTIFIER;
     static const TokenName SEPARATOR;
+    static const TokenName PARENTHESIS;
     static const TokenName END_OF_COMMAND;
 
     bool operator==(const TokenName& other) { return code == other.code; }
@@ -18,7 +20,7 @@ public:
     const char* name() const { return names[code]; }
 
 private:
-    static const char* names[6];
+    static const char* names[8];
     size_t code;
 
     TokenName(size_t code) 

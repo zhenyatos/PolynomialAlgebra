@@ -10,8 +10,8 @@ int main() {
     tokens = Parser::parse("print > a + b;");
     } catch(std::exception& err) {
         std::cout << err.what();
-        return 0;
     }
+    tokens = Parser::parse("a = (b + 1) * 2");
     for (Token token : tokens)
         std::cout << token.first.name() << " " << token.second << std::endl;
     return 0;
