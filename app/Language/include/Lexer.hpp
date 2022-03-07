@@ -30,9 +30,9 @@ private:
 
 using Token = std::pair<TokenName, std::string>;
 
-class Parser {
+class Lexer {
 public:
-    Parser() = delete;
+    Lexer() = delete;
 
     static std::vector<Token> parse(std::string line);
 };
