@@ -1,6 +1,8 @@
-add_library(language SHARED Lexer.cpp)
+add_library(language SHARED Lexer.cpp Parser.cpp Interpreter.cpp)
 
 target_include_directories(language PUBLIC include)
+
+target_link_libraries(language PUBLIC numbers)
 
 set_target_properties(language PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ..\\..\\..\\bin

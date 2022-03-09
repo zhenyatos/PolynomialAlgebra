@@ -1,18 +1,21 @@
 #include "Lexer.hpp"
+#include "Parser.hpp"
 #include <iostream>
 
 int main() {
-    std::vector<Token> tokens = Lexer::parse("var a = -1//3 ;");
-    for (Token token : tokens)
-        std::cout << token.first.name() << " " << token.second << std::endl;
-    std::cout << "\n\n";
-    try {
-    tokens = Lexer::parse("print > a + b;");
-    } catch(std::exception& err) {
-        std::cout << err.what();
+    std::vector<Token> tokens;
+    std::string input;
+    std::getline(std::cin, input);
+    while(input != "") {
+        tokens = Lexer::parse(input);
+        Node* head = nullptr;
+        Parser p(tokens);
+        head = p.AST();
+        if (head != nullptr) {
+            head->evaluate();
+            p.freeNodes();
+        }
+        std::getline(std::cin, input);
     }
-    tokens = Lexer::parse("a = (b + 1) * 2");
-    for (Token token : tokens)
-        std::cout << token.first.name() << " " << token.second << std::endl;
     return 0;
 }
