@@ -11,6 +11,7 @@ public:
     static const Type INTEGER;
     static const Type RATIONAL;
     static const Type MODULAR;
+    static const Type VARIABLE;
 
     bool operator==(const Type& other) const { return code == other.code; }
     bool operator!=(const Type& other) const { return code != other.code; }
@@ -22,5 +23,5 @@ public:
 private:
     size_t code;
 
-    static const char* message[4];
+    static const char* message[5];
 };

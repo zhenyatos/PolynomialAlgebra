@@ -20,40 +20,49 @@ Node* Parser::sentence() {
     if (current >= tokens.size())
         return nullptr;
 
-    Node* res = expr();
+    Node* res = statement();
 
     if (current < tokens.size() && tokens[current].first == TokenName::END_OF_COMMAND) {
         eat(TokenName::END_OF_COMMAND);
         res->evaluate(); 
+        freeNodes();
         res = sentence();
+    } else {
+        nodes.push_back(new NPrint(res));
+        return nodes.back();
     }
 
     return res;
 }
 
-Node* Parser::assign() {
-    if (current >= tokens.size())
-        throw std::runtime_error("Unexpected end of sentence");
-    if (tokens[current].first == TokenName::IDENTIFIER) {
-        std::string name = tokens[current].second;
-        eat(TokenName::IDENTIFIER);
-        eat(TokenName::ASSIGNMENT);
-        Node* res = expr();
-        Type t = res->type;
-        if (t == Type::INTEGER)
-            nodes.push_back(new NIntAssign(name, res));
-        else if (t == Type::RATIONAL)
-            nodes.push_back(new NRatAssign(name, res));
+Node* Parser::statement() {
+    Node* l = expr();
+
+    if (l->type == Type::VARIABLE) {
+        NVar* var = (NVar*)l;
+        std::string name = var->getName();
+        if (current < tokens.size() && tokens[current].first == TokenName::ASSIGNMENT) {
+            eat(TokenName::ASSIGNMENT);
+            Node* res = statement();
+            Type t = res->type;
+            if (t == Type::INTEGER)
+                nodes.push_back(new NIntAssign(name, res));
+            else if (t == Type::RATIONAL)
+                nodes.push_back(new NRatAssign(name, res));
+            else
+                throw std::runtime_error("Can't assign " + std::string(t));
+        } else {
+            nodes.push_back(var->value());
+        }
         return nodes.back();
-    } else {
-        throw std::runtime_error("Unexpected token " + tokens[current].second);
     }
-    
-    return nullptr;
+
+    return l;
 }
 
+// expr : term +- term (+- term ...)
 Node* Parser::expr() {
-    Node* res = term();
+    Node* l = term();
 
     while (tokens[current].first == TokenName::PLUS || 
             tokens[current].first == TokenName::MINUS) {
@@ -63,24 +72,33 @@ Node* Parser::expr() {
         else
             eat(TokenName::MINUS);
         
-        Type ltype = res->type;
+        if (l->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)l)->value());
+            l = nodes.back();
+        }
+        Type ltype = l->type;
         Node* r = term();
+        if (r->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)r)->value());
+            r = nodes.back();
+        }
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
-            nodes.push_back(new NIntOp(res, token.second, r));
+            nodes.push_back(new NIntOp(l, token.second, r));
         else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
-            nodes.push_back(new NRatOp(res, token.second, r));
+            nodes.push_back(new NRatOp(l, token.second, r));
         else
             throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
                                      std::string(rtype) + ")");
-        res = nodes.back(); 
+        l = nodes.back(); 
     }
 
-    return res;
+    return l;
 }
 
+//  term : factor */ factor (*/ factor ...)
 Node* Parser::term() {
-    Node* res = factor();
+    Node* l = factor();
 
     while (tokens[current].first == TokenName::MUL ||
             tokens[current].first == TokenName::DIV) {
@@ -89,24 +107,33 @@ Node* Parser::term() {
             eat(TokenName::MUL);
         else
             eat(TokenName::DIV);
-
-        Type ltype = res->type;
+        
+        if (l->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)l)->value());
+            l = nodes.back();
+        }
+        Type ltype = l->type;
         Node* r = factor();
+        if (r->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)r)->value());
+            r = nodes.back();
+        }
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
-            nodes.push_back(new NIntOp(res, token.second, r));
+            nodes.push_back(new NIntOp(l, token.second, r));
         else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
-            nodes.push_back(new NRatOp(res, token.second, r));
-        else {
+            nodes.push_back(new NRatOp(l, token.second, r));
+        else
             throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
                                      std::string(rtype) + ")");
-        }
-        res = nodes.back();
+        
+        l = nodes.back();
     }
 
-    return res;
+    return l;
 }
 
+// factor  : number | number // number | print(expr) | abs(expr) | IDENTIFIER | LPAREN expr RPAREN
 Node* Parser::factor() {      
     Node* num = number();
 
@@ -115,60 +142,36 @@ Node* Parser::factor() {
             return num;
     
     Token token = tokens[current];
-    if (num != nullptr && token.first == TokenName::FRACBAR) {
-        eat(TokenName::FRACBAR);
-        Node* num2 = number();
-        
-        if (num2 == nullptr)
-            throw std::runtime_error("Unexpected token");
-        nodes.push_back(new NRat(num, num2));
-        return nodes.back();
-    } 
-    else if (num != nullptr) {
-        return num;
+    if (num != nullptr) {
+        if (token.first == TokenName::FRACBAR) {
+            eat(TokenName::FRACBAR);
+            Node* num2 = expr();
+            
+            nodes.push_back(new NRat(num, num2));
+            return nodes.back();
+        } 
+        else
+            return num;
     }
     else if (token.first == TokenName::RESERVED_WORD) {
-        if (token.second == "print") {
-            eat(TokenName::RESERVED_WORD);
-            eat(TokenName::LPAREN);
-            nodes.push_back(new NPrint(expr()));
-            eat(TokenName::RPAREN);
-            return nodes.back();
-        } else if (token.second == "abs") {
-            eat(TokenName::RESERVED_WORD);
-            eat(TokenName::LPAREN);
-            Node* arg = expr();
-            Type t = arg->type;
-            nodes.push_back(abs(arg));
-            eat(TokenName::RPAREN);
-            return nodes.back();
-        }
+        eat(TokenName::RESERVED_WORD);
+        eat(TokenName::LPAREN);
+        if (token.second == "print")
+            nodes.push_back(new NPrint(statement()));
+        else if (token.second == "abs")
+            nodes.push_back(abs(statement()));
+        eat(TokenName::RPAREN);
+        return nodes.back();
     }
     else if (token.first == TokenName::IDENTIFIER) {
         eat(TokenName::IDENTIFIER);
         std::string name = token.second;
-        if (current >= tokens.size() || tokens[current].first != TokenName::ASSIGNMENT) {
-            auto check = Interpreter::variableExists(name);
-            if (!check.first)
-                throw std::runtime_error("Reference to the uninitialized variable " + name);
-            if (check.second == Type::INTEGER)
-                nodes.push_back(new NIntValVar(name));
-            else if (check.second == Type::RATIONAL)
-                nodes.push_back(new NRatValVar(name));
-        } else {
-            eat(TokenName::ASSIGNMENT);
-            Node* res = expr();
-            Type t = res->type;
-            if (t == Type::INTEGER)
-                nodes.push_back(new NIntAssign(name, res));
-            else if (t == Type::RATIONAL)
-                nodes.push_back(new NRatAssign(name, res));
-        }
+        nodes.push_back(new NVar(name));
         return nodes.back();
     }
     else if (token.first == TokenName::LPAREN) {
         eat(TokenName::LPAREN);
-        Node* res = expr();
+        Node* res = statement();
         eat(TokenName::RPAREN);
         return res;
     } else
@@ -211,10 +214,12 @@ const Type Type::NOTHING = Type(0);
 const Type Type::INTEGER = Type(1);
 const Type Type::RATIONAL = Type(2);
 const Type Type::MODULAR = Type(3);
+const Type Type::VARIABLE = Type(4);
 
-const char* Type::message[4] = {
+const char* Type::message[5] = {
     "NOTHING",
     "INTEGER",
     "RATIONAL",
-    "MODULAR"
+    "MODULAR",
+    "VARIABLE"
 };

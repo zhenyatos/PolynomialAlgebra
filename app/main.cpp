@@ -12,7 +12,11 @@ int main() {
         Parser p(tokens);
         head = p.AST();
         if (head != nullptr) {
-            head->evaluate();
+            try {
+                head->evaluate();
+            } catch(const std::exception& ex) {
+                std::cout << c_red << ex.what() << c_white << std::endl;
+            }
             p.freeNodes();
         }
         std::getline(std::cin, input);

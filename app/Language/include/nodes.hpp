@@ -42,6 +42,20 @@ protected:
     Rational value;
 };
 
+class NVar : public Node {
+public:
+    NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
+    virtual ~NVar() override = default;
+
+    void evaluate() override {}
+
+    Node* value();
+    std::string getName() { return name; }
+
+private:
+    std::string name;
+};
+
 class NInt : public NIntVal {
 public:
     NInt(Integer val);

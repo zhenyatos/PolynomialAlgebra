@@ -19,7 +19,7 @@ private:
 
     void eat(const TokenName& tokenName);
     Node* sentence();
-    Node* assign();
+    Node* statement();
     Node* expr();
     Node* term();
     Node* factor();

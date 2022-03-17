@@ -2,6 +2,16 @@
 #include "Interpreter.hpp"
 #include <iostream>
 
+Node* NVar::value() {
+    auto check = Interpreter::variableExists(name);
+    if (!check.first)
+        throw std::runtime_error("Reference to the uninitialized variable " + name);
+    if (check.second == Type::INTEGER)
+        return new NIntValVar(name);
+    else if (check.second == Type::RATIONAL)
+        return new NRatValVar(name);
+}
+
 NInt::NInt(Integer val) { value = val; }
 
 void NInt::evaluate() {
@@ -12,10 +22,8 @@ void NInt::evaluate() {
 NRat::NRat(Node* p, Node* q) : p(p), q(q) {}
 
 void NRat::evaluate() {
-    if (p->type != Type::INTEGER)
-        throw "BAD";
-    if (q->type != Type::INTEGER)
-        throw "BAD";
+    if (p->type != Type::INTEGER || q->type != Type::INTEGER)
+        throw std::runtime_error("No method matching //(" + std::string(p->type) + ", " + std::string(q->type) + ")");
     if (!p->isEval())
         p->evaluate();
     if (!q->isEval())
@@ -37,18 +45,14 @@ void NIntOp::evaluate() {
         right->evaluate();
     Integer a = ((NIntVal*)left)->getValue();
     Integer b = ((NIntVal*)right)->getValue();
-    try {
-        if (op == "+")
-            value = a + b;
-        else if (op == "-")
-            value = a - b;
-        else if (op == "*")
-            value = a * b;
-        else if (op == "/")
-            value = a.div(b);
-    } catch (const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    if (op == "+")
+        value = a + b;
+    else if (op == "-")
+        value = a - b;
+    else if (op == "*")
+        value = a * b;
+    else if (op == "/")
+        value = a.div(b);
     
     evaluated = true;
 }
@@ -73,18 +77,14 @@ void NRatOp::evaluate() {
         b = Rational(((NIntVal*)right)->getValue());
     else
         b = ((NRatVal*)right)->getValue();
-    try {
-        if (op == "+")
-            value = a + b;
-        else if (op == "-")
-            value = a - b;
-        else if (op == "*")
-            value = a * b;
-        else if (op == "/")
-            value = a / b;
-    } catch (const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    if (op == "+")
+        value = a + b;
+    else if (op == "-")
+        value = a - b;
+    else if (op == "*")
+        value = a * b;
+    else if (op == "/")
+        value = a / b;
     
     evaluated = true;
 }
@@ -114,11 +114,7 @@ void NIntAssign::evaluate() {
     if (!expr->isEval())
         expr->evaluate();
     value = ((NIntVal*)expr)->getValue();
-    try {
-        Interpreter::setIntValue(initializer, value);
-    } catch (const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    Interpreter::setIntValue(initializer, value);
     evaluated = true;
 }
 
@@ -131,11 +127,7 @@ void NRatAssign::evaluate() {
     if (!expr->isEval())
         expr->evaluate();
     value = ((NRatVal*)expr)->getValue();
-    try {
-        Interpreter::setRatValue(initializer, value);
-    } catch (const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    Interpreter::setRatValue(initializer, value);
     evaluated = true;
 }
 
@@ -143,21 +135,13 @@ void NRatAssign::evaluate() {
 NIntValVar::NIntValVar(const std::string& name) : name(name) {}
 
 void NIntValVar::evaluate() {
-    try {
-        value = Interpreter::getIntValue(name);
-    } catch(const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    value = Interpreter::getIntValue(name);
     evaluated = true;
 }
 
 
 NRatValVar::NRatValVar(const std::string& name) : name(name) {}
 void NRatValVar::evaluate() {
-    try {
-        value = Interpreter::getRatValue(name);
-    } catch(const std::exception& ex) {
-        std::cout << c_red << ex.what() << c_white << std::endl;
-    }
+    value = Interpreter::getRatValue(name);
     evaluated = true;
 }
