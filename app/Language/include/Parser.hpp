@@ -1,13 +1,15 @@
 #pragma once
 #include "Lexer.hpp"
+#include "Type.hpp"
 #include "Integer.hpp"
+#include "Rational.hpp"
 #include <iostream>
 
 class Parser;
 
 class Node {
 public:
-    Node() = default;
+    Node(Type type) : type(type) {}
     virtual ~Node() = default;
 
     virtual void evaluate() = 0;
@@ -16,20 +18,32 @@ public:
 
     friend Parser;
 
+    const Type type;
+
 protected:
     bool evaluated = false;
 };
 
 class NIntVal : public Node {
 public:
-    NIntVal() = default;
-    NIntVal(Integer value) : value(value) {}
-    ~NIntVal() override = default;
+    NIntVal() : Node(Type::INTEGER) {}
+    virtual ~NIntVal() override = default;
 
     Integer getValue() const { return value; }
 
 protected:
     Integer value;
+};
+
+class NRatVal : public Node {
+public:
+    NRatVal() : Node(Type::RATIONAL) {}
+    virtual ~NRatVal() override = default;
+
+    Rational getValue() const { return value; }
+
+protected:
+    Rational value;
 };
 
 class Parser {
@@ -51,6 +65,7 @@ private:
     Node* expr();
     Node* term();
     Node* factor();
+    Node* number();
 
     std::vector<Node*> nodes;
 };

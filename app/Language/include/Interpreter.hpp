@@ -1,45 +1,25 @@
 #pragma once
 #include "Integer.hpp"
+#include "Type.hpp"
+#include "Rational.hpp"
 #include <string>
 #include <map>
-
-enum class VarType {
-    INTEGER,
-};
 
 class Interpreter {
 private:
     static std::map<std::string, Integer> intVars;
+    static std::map<std::string, Rational> ratVars;
 
 public:
-    static bool variableExists(const std::string& name, VarType type) {
-        if (type == VarType::INTEGER) {
-            if (intVars.find(name) != intVars.end())
-                return true;
-            else
-                return false;
-        }    
-    }
+    Interpreter() = delete;
 
-    static void createVariable(const std::string& name, VarType type) {
-        if (variableExists(name, type))
-            throw std::runtime_error("Reference to the uninitialized variable " + name);
-        if (type == VarType::INTEGER)
-            intVars[name] = 0;
-    }
+    static std::pair<bool, Type> variableExists(const std::string& name);
+    
+    static void setIntValue(const std::string& name, Integer value);
 
-    template<class T>
-    static void setValue(const std::string& name, T value, VarType type) {
-        if (!variableExists(name, type))
-            throw std::runtime_error("Reference to the uninitialized variable " + name);
-        if (type == VarType::INTEGER) {
-            intVars[name] = value;
-        }
-    }
+    static void setRatValue(const std::string& name, Rational value);
 
-    static Integer getIntValue(const std::string& name, VarType type) {
-        if (!variableExists(name, type))
-            throw std::runtime_error("Reference to the uninitialized variable " + name);
-        return intVars[name];
-    }
+    static Integer getIntValue(const std::string& name);
+
+    static Rational getRatValue(const std::string& name);
 };
