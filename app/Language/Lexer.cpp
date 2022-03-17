@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 const std::set<std::string> reservedWords = {
-        "var", "print", "X"
+        "abs", "print", "X"
     };
 
 std::vector<Token> Lexer::parse(std::string line) {

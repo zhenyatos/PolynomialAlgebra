@@ -1,239 +1,8 @@
 #include "Parser.hpp"
 #include "Interpreter.hpp"
+#include "functions.hpp"
 #include <string>
-
-const char* c_red = "\u001b[31m";
-const char* c_yellow = "\u001b[33m";
-const char* c_white = "\u001b[37m";
-
-class NInt : public NIntVal {
-public:
-    NInt(Integer val) { value = val; }
-    ~NInt() override = default;
-
-    void evaluate() override {
-        evaluated = true;
-    }
-};
-
-class NRat : public NRatVal {
-public:
-    NRat(Node* p, Node* q) : p(p), q(q) {}
-    ~NRat() override = default;
-
-    void evaluate() override {
-        if (p->type != Type::INTEGER)
-            throw "BAD";
-        if (q->type != Type::INTEGER)
-            throw "BAD";
-        if (!p->isEval())
-            p->evaluate();
-        if (!q->isEval())
-            q->evaluate();
-        value = Rational(((NIntVal*)p)->getValue(), 
-                            ((NIntVal*)q)->getValue());
-        evaluated = true;
-    }
-
-private:
-    Node* p;
-    Node* q;
-};
-
-class NIntOp : public NIntVal {
-public:
-    NIntOp(Node* left, const std::string& op, Node* right)
-        : left(left), op(op), right(right)
-    {}
-    ~NIntOp() override = default;
-
-    void evaluate() override {
-        if (!left->isEval())
-            left->evaluate();
-        if (!right->isEval())
-            right->evaluate();
-        Integer a = ((NIntVal*)left)->getValue();
-        Integer b = ((NIntVal*)right)->getValue();
-        try {
-            if (op == "+")
-                value = a + b;
-            else if (op == "-")
-                value = a - b;
-            else if (op == "*")
-                value = a * b;
-            else if (op == "/")
-                value = a.div(b);
-        } catch (const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        
-        evaluated = true;
-    }
-
-private:
-    Node* left;
-    Node* right;
-    std::string op;
-};
-
-class NRatOp : public NRatVal {
-public:
-    NRatOp(Node* left, const std::string& op, Node* right)
-        : left(left), op(op), right(right)
-    {}
-    ~NRatOp() override = default;
-
-    void evaluate() override {
-        if (!left->isEval())
-            left->evaluate();
-        if (!right->isEval())
-            right->evaluate();
-        Rational a;
-        Rational b;
-        if (left->type == Type::INTEGER)
-            a = Rational(((NIntVal*)left)->getValue());
-        else
-            a = ((NRatVal*)left)->getValue();
-        if (right->type == Type::INTEGER)
-            b = Rational(((NIntVal*)right)->getValue());
-        else
-            b = ((NRatVal*)right)->getValue();
-        try {
-            if (op == "+")
-                value = a + b;
-            else if (op == "-")
-                value = a - b;
-            else if (op == "*")
-                value = a * b;
-            else if (op == "/")
-                value = a / b;
-        } catch (const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        
-        evaluated = true;
-    }
-
-private:
-    Node* left;
-    Node* right;
-    std::string op;
-};
-
-class NPrint : public Node {
-public:
-    NPrint(Node* value)
-        : Node(Type::NOTHING), expr(value)
-    {}
-    ~NPrint() override = default;
-
-    void evaluate() override {
-        if (!expr->isEval())
-            expr->evaluate();
-        Type type = expr->type;
-        if (type == Type::INTEGER)
-            std::cout << ((NIntVal*)expr)->getValue() << std::endl;
-        else if (type == Type::RATIONAL)
-            std::cout << ((NRatVal*)expr)->getValue() << std::endl;
-        evaluated = true;
-    }
-
-private:
-    Node* expr;
-};
-
-class NIntAssign : public NIntVal {
-public:
-    NIntAssign(const std::string& initializer, Node* value)
-        : initializer(initializer), expr(value)
-    {}
-    ~NIntAssign() override = default;
-
-    void evaluate() override {
-        if (!expr->isEval())
-            expr->evaluate();
-        value = ((NIntVal*)expr)->getValue();
-        try {
-            Interpreter::setIntValue(initializer, value);
-        } catch (const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        evaluated = true;
-    }
-
-    std::string getName() const {
-        return initializer;
-    }
-
-private:
-    Node* expr;
-    std::string initializer;
-};
-
-class NRatAssign : public NRatVal {
-public:
-    NRatAssign(const std::string& initializer, Node* value)
-        : initializer(initializer), expr(value)
-    {}
-    ~NRatAssign() override = default;
-
-    void evaluate() override {
-        if (!expr->isEval())
-            expr->evaluate();
-        value = ((NRatVal*)expr)->getValue();
-        try {
-            Interpreter::setRatValue(initializer, value);
-        } catch (const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        evaluated = true;
-    }
-
-    std::string getName() const {
-        return initializer;
-    }
-
-private:
-    Node* expr;
-    std::string initializer;
-};
-
-class NIntValVar : public NIntVal {
-public:
-    NIntValVar(const std::string& name) : name(name) {}
-    ~NIntValVar() override = default;
-
-    void evaluate() override {
-        try {
-            value = Interpreter::getIntValue(name);
-        } catch(const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        evaluated = true;
-    }
-
-private:
-    std::string name;
-};
-
-class NRatValVar : public NRatVal {
-public:
-    NRatValVar(const std::string& name) : name(name) {}
-    ~NRatValVar() override = default;
-
-    void evaluate() override {
-        try {
-            value = Interpreter::getRatValue(name);
-        } catch(const std::exception& ex) {
-            std::cout << c_red << ex.what() << c_white << std::endl;
-        }
-        evaluated = true;
-    }
-
-private:
-    std::string name;
-};
-
+    
 Parser::Parser(const std::vector<Token>& tokens) 
     : current(0), tokens(tokens)
 {}
@@ -251,18 +20,7 @@ Node* Parser::sentence() {
     if (current >= tokens.size())
         return nullptr;
 
-    Node* res;
-    if (tokens[current].first == TokenName::RESERVED_WORD) {
-        if (tokens[current].second == "print") {
-            eat(TokenName::RESERVED_WORD);
-            eat(TokenName::LPAREN);
-            nodes.push_back(new NPrint(expr()));
-            eat(TokenName::RPAREN);
-            res = nodes.back();
-        }
-    }
-    else
-        res = expr();
+    Node* res = expr();
 
     if (current < tokens.size() && tokens[current].first == TokenName::END_OF_COMMAND) {
         eat(TokenName::END_OF_COMMAND);
@@ -310,8 +68,11 @@ Node* Parser::expr() {
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
             nodes.push_back(new NIntOp(res, token.second, r));
-        if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
+        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
             nodes.push_back(new NRatOp(res, token.second, r));
+        else
+            throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
+                                     std::string(rtype) + ")");
         res = nodes.back(); 
     }
 
@@ -336,6 +97,10 @@ Node* Parser::term() {
             nodes.push_back(new NIntOp(res, token.second, r));
         else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
             nodes.push_back(new NRatOp(res, token.second, r));
+        else {
+            throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
+                                     std::string(rtype) + ")");
+        }
         res = nodes.back();
     }
 
@@ -361,6 +126,23 @@ Node* Parser::factor() {
     } 
     else if (num != nullptr) {
         return num;
+    }
+    else if (token.first == TokenName::RESERVED_WORD) {
+        if (token.second == "print") {
+            eat(TokenName::RESERVED_WORD);
+            eat(TokenName::LPAREN);
+            nodes.push_back(new NPrint(expr()));
+            eat(TokenName::RPAREN);
+            return nodes.back();
+        } else if (token.second == "abs") {
+            eat(TokenName::RESERVED_WORD);
+            eat(TokenName::LPAREN);
+            Node* arg = expr();
+            Type t = arg->type;
+            nodes.push_back(abs(arg));
+            eat(TokenName::RPAREN);
+            return nodes.back();
+        }
     }
     else if (token.first == TokenName::IDENTIFIER) {
         eat(TokenName::IDENTIFIER);
@@ -429,3 +211,10 @@ const Type Type::NOTHING = Type(0);
 const Type Type::INTEGER = Type(1);
 const Type Type::RATIONAL = Type(2);
 const Type Type::MODULAR = Type(3);
+
+const char* Type::message[4] = {
+    "NOTHING",
+    "INTEGER",
+    "RATIONAL",
+    "MODULAR"
+};

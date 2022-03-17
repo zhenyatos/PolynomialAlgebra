@@ -15,6 +15,12 @@ public:
     bool operator==(const Type& other) const { return code == other.code; }
     bool operator!=(const Type& other) const { return code != other.code; }
 
+    constexpr operator const char*() {
+        return message[code];
+    };
+
 private:
     size_t code;
+
+    static const char* message[4];
 };
