@@ -192,6 +192,12 @@ Node* Parser::prime() {
             nodes.push_back(new NPrint(statement()));
         else if (token.second == "abs")
             nodes.push_back(abs(statement()));
+        else if (token.second == "gcd") {
+            Node* l = statement();
+            eat(TokenName::COMMA);
+            Node* r = statement();
+            nodes.push_back(gcd(l, r));
+        }
         eat(TokenName::RPAREN);
         return nodes.back();
     }

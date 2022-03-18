@@ -60,6 +60,24 @@ private:
     Node* arg;
 };
 
+class NIntGCD : public NIntVal {
+public:
+    NIntGCD(Node* a, Node* b) : a(a), b(b) {}
+    ~NIntGCD() override = default;
+
+    void evaluate() override {
+        if (!a->isEval())
+            a->evaluate();
+        if (!b->isEval())
+            b->evaluate();
+        value = GCD(((NIntVal*)a)->getValue(), ((NIntVal*)b)->getValue());
+    }
+
+private:
+    Node* a;
+    Node* b;
+};
+
 Node* abs(Node* x) {
     Type t = x->type;
     if (t == Type::INTEGER) {
@@ -78,4 +96,11 @@ Node* unmin(Node* x) {
         return new NRatUMin(x);
     } else
         throw std::runtime_error("No function matching -(" + std::string(t) + ")");
+}
+
+Node* gcd(Node* a, Node* b) {
+    if (a->type != Type::INTEGER || b->type != Type::INTEGER)
+        throw std::runtime_error("No function matching gcd(" + std::string(a->type) + ", " +
+                                std::string(b->type) + ")");
+    return new NIntGCD(a, b);       
 }

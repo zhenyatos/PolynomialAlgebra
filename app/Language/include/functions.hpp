@@ -4,3 +4,5 @@
 Node* abs(Node* x);
 
 Node* unmin(Node* x);
+
+Node* gcd(Node* a, Node* b);
