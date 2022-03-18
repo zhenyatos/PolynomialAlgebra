@@ -60,7 +60,6 @@ Node* Parser::statement() {
     return l;
 }
 
-// expr : term +- term (+- term ...)
 Node* Parser::expr() {
     Node* l = term();
 
@@ -96,9 +95,8 @@ Node* Parser::expr() {
     return l;
 }
 
-//  term : factor */ factor (*/ factor ...)
 Node* Parser::term() {
-    Node* l = factor();
+    Node* l = subterm();
 
     while (tokens[current].first == TokenName::MUL ||
             tokens[current].first == TokenName::DIV) {
@@ -113,7 +111,7 @@ Node* Parser::term() {
             l = nodes.back();
         }
         Type ltype = l->type;
-        Node* r = factor();
+        Node* r = subterm();
         if (r->type == Type::VARIABLE) {
             nodes.push_back(((NVar*)r)->value());
             r = nodes.back();
@@ -133,25 +131,59 @@ Node* Parser::term() {
     return l;
 }
 
-// factor  : number | number // number | print(expr) | abs(expr) | IDENTIFIER | LPAREN expr RPAREN
-Node* Parser::factor() {      
-    Node* num = number();
+Node* Parser::subterm() {
+    Node* l = factor();
 
-    if (num != nullptr)
-        if (current >= tokens.size())
-            return num;
-    
-    Token token = tokens[current];
-    if (num != nullptr) {
-        if (token.first == TokenName::FRACBAR) {
-            eat(TokenName::FRACBAR);
-            Node* num2 = expr();
-            
-            nodes.push_back(new NRat(num, num2));
-            return nodes.back();
-        } 
+    while (tokens[current].first == TokenName::FRACBAR) {
+        eat(TokenName::FRACBAR);
+
+        if (l->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)l)->value());
+            l = nodes.back();
+        }
+        Type ltype = l->type;
+        Node* r = factor();
+        if (r->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)r)->value());
+            r = nodes.back();
+        }
+        Type rtype = r->type;
+        if (ltype == Type::INTEGER && rtype == Type::INTEGER)
+            nodes.push_back(new NRat(l, r));
+        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
+            nodes.push_back(new NRatOp(l, "/", r));
         else
-            return num;
+            throw std::runtime_error("No method matching //(" + std::string(ltype) + ", " +
+                                     std::string(rtype) + ")");
+        
+        l = nodes.back();
+    }
+
+    return l;
+}
+
+Node* Parser::factor() {
+    if (tokens[current].first == TokenName::MINUS) {
+        eat(TokenName::MINUS);
+        Node* p = prime();
+        if (p->type == Type::VARIABLE) {
+            nodes.push_back(((NVar*)p)->value());
+            p = nodes.back();
+        }
+        nodes.push_back(unmin(p));
+        return nodes.back();
+    }
+
+    return prime();
+}
+
+Node* Parser::prime() {     
+    Token token = tokens[current];
+
+    if (token.first == TokenName::NUMBER) {
+        eat(TokenName::NUMBER);
+        nodes.push_back(new NInt(std::stoi(token.second)));
+        return nodes.back();
     }
     else if (token.first == TokenName::RESERVED_WORD) {
         eat(TokenName::RESERVED_WORD);
@@ -174,22 +206,9 @@ Node* Parser::factor() {
         Node* res = statement();
         eat(TokenName::RPAREN);
         return res;
-    } else
+    } 
+    else
         throw std::runtime_error("Unexpected token " + tokens[current].second);
-}
-
-Node* Parser::number() {
-    if (current >= tokens.size())
-        throw std::runtime_error("Unexpected end of sentence");
-
-    Token token = tokens[current];
-    if (token.first == TokenName::NUMBER) {
-        eat(TokenName::NUMBER);
-        nodes.push_back(new NInt(std::stoi(token.second)));
-        return nodes.back();
-    }
-
-    return nullptr;
 }
 
 Node* Parser::AST() {

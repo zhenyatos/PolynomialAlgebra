@@ -44,19 +44,10 @@ std::vector<Token> Lexer::parse(std::string line) {
                 line = std::move(line.substr(1));
             }
         }
-        // operator - or number
+        // operator -
         else if (line[0] == '-') {
-            if (line.size() != 1 && isdigit(line[1]) > 0) {
-                int i = 1;
-                while (i < line.size() && isdigit(line[i]) > 0)
-                    i++;
-                std::string value = line.substr(0, i);
-                result.push_back({TokenName::NUMBER, value});
-                line = std::move(line.substr(i));
-            } else {
-                result.push_back({TokenName::MINUS, line.substr(0, 1)});
-                line = std::move(line.substr(1));
-            }
+            result.push_back({TokenName::MINUS, line.substr(0, 1)});
+            line = std::move(line.substr(1));
         }
         // single symbol stuff
         else {

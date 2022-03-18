@@ -30,6 +30,36 @@ private:
     Node* arg;
 };
 
+class NIntUMin : public NIntVal {
+public:
+    NIntUMin(Node* arg) : arg(arg) {}
+    ~NIntUMin() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        value = -((NIntVal*)arg)->getValue();
+    }
+
+private:
+    Node* arg;
+};
+
+class NRatUMin : public NRatVal {
+public:
+    NRatUMin(Node* arg) : arg(arg) {}
+    ~NRatUMin() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        value = -((NRatVal*)arg)->getValue();
+    }
+
+private:
+    Node* arg;
+};
+
 Node* abs(Node* x) {
     Type t = x->type;
     if (t == Type::INTEGER) {
@@ -38,4 +68,14 @@ Node* abs(Node* x) {
         return new NRatAbs(x);
     } else
         throw std::runtime_error("No function matching abs(" + std::string(t) + ")");
+}
+
+Node* unmin(Node* x) {
+    Type t = x->type;
+    if (t == Type::INTEGER) {
+        return new NIntUMin(x);
+    } else if (t == Type::RATIONAL) {
+        return new NRatUMin(x);
+    } else
+        throw std::runtime_error("No function matching -(" + std::string(t) + ")");
 }

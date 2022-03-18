@@ -22,7 +22,9 @@ private:
     Node* statement();
     Node* expr();
     Node* term();
+    Node* subterm();
     Node* factor();
+    Node* prime();
     Node* number();
 
     std::vector<Node*> nodes;
