@@ -1,5 +1,5 @@
 #include "Rational.hpp"
-#include <exception>
+#include <stdexcept>
 
 class RationalError {
 public:

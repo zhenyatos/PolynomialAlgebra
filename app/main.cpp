@@ -1,17 +1,25 @@
-#include "Integer.hpp"
-#include "Rational.hpp"
-#include "Modular.hpp"
-#include "Polynomial.hpp"
+#include "Lexer.hpp"
+#include "Parser.hpp"
 #include <iostream>
 
-template<int N>
-Modular<N> M(Integer a) {
-    return Modular<N>(a);
-}
-
 int main() {
-    Polynomial<Modular<3>> a({M<3>(1), M<3>(2)});
-    std::cout << a * a;
-    std::cout << "\na([1, 3]) = " << a(M<3>(1));
+    std::vector<Token> tokens;
+    std::string input;
+    std::getline(std::cin, input);
+    while(input != "") {
+        tokens = Lexer::parse(input);
+        Node* head = nullptr;
+        Parser p(tokens);
+        head = p.AST();
+        if (head != nullptr) {
+            try {
+                head->evaluate();
+            } catch(const std::exception& ex) {
+                std::cout << c_red << ex.what() << c_white << std::endl;
+            }
+            p.freeNodes();
+        }
+        std::getline(std::cin, input);
+    }
     return 0;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
-#include <exception>
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 template<class T>
