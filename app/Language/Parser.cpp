@@ -86,7 +86,8 @@ Node* Parser::expr() {
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
             nodes.push_back(new NIntOp(l, token.second, r));
-        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
+        else if ((ltype == Type::RATIONAL || rtype == Type::RATIONAL) &&
+                (ltype == Type::INTEGER || rtype == Type::INTEGER))
             nodes.push_back(new NRatOp(l, token.second, r));
         else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
             nodes.push_back(new NModOp(l, token.second, r));
@@ -123,7 +124,8 @@ Node* Parser::term() {
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
             nodes.push_back(new NIntOp(l, token.second, r));
-        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
+        else if ((ltype == Type::RATIONAL || rtype == Type::RATIONAL) &&
+                (ltype == Type::INTEGER || rtype == Type::INTEGER))
             nodes.push_back(new NRatOp(l, token.second, r));
         else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
             nodes.push_back(new NModOp(l, token.second, r));
