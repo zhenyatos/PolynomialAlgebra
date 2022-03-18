@@ -10,6 +10,8 @@ Node* NVar::value() {
         return new NIntValVar(name);
     else if (check.second == Type::RATIONAL)
         return new NRatValVar(name);
+    else if (check.second == Type::MODULAR)
+        return new NModValVar(name);
 }
 
 NInt::NInt(Integer val) { value = val; }
@@ -30,6 +32,20 @@ void NRat::evaluate() {
         q->evaluate();
     value = Rational(((NIntVal*)p)->getValue(), 
                         ((NIntVal*)q)->getValue());
+    evaluated = true;
+}
+
+NMod::NMod(Node* a, Node* N) : a(a), N(N) {}
+
+void NMod::evaluate() {
+    if (a->type != Type::INTEGER || N->type != Type::INTEGER)
+        throw std::runtime_error("No method matching [" + std::string(a->type) + ", " + std::string(N->type) + "]");
+    if (!a->isEval())
+        a->evaluate();
+    if (!N->isEval())
+        N->evaluate();
+    value = Modular(((NIntVal*)a)->getValue(), 
+                        ((NIntVal*)N)->getValue());
     evaluated = true;
 }
 
@@ -90,6 +106,34 @@ void NRatOp::evaluate() {
 }
 
 
+NModOp::NModOp(Node* left, const std::string& op, Node* right)
+    : left(left), op(op), right(right)
+{}
+
+void NModOp::evaluate() {
+    if (!left->isEval())
+        left->evaluate();
+    if (!right->isEval())
+        right->evaluate();
+    Modular a;
+    Modular b;
+    if (left->type == Type::MODULAR)
+        a = ((NModVal*)left)->getValue();
+    if (right->type == Type::MODULAR)
+        b = ((NModVal*)right)->getValue();
+    if (op == "+")
+        value = a + b;
+    else if (op == "-")
+        value = a - b;
+    else if (op == "*")
+        value = a * b;
+    else if (op == "/")
+        value = a / b;
+    
+    evaluated = true;
+}
+
+
 NPrint::NPrint(Node* value)
     : Node(Type::NOTHING), expr(value)
 {}
@@ -102,6 +146,8 @@ void NPrint::evaluate() {
         std::cout << ((NIntVal*)expr)->getValue() << std::endl;
     else if (type == Type::RATIONAL)
         std::cout << ((NRatVal*)expr)->getValue() << std::endl;
+    else if (type == Type::MODULAR)
+        std::cout << ((NModVal*)expr)->getValue() << std::endl;
     evaluated = true;
 }
 
@@ -132,6 +178,19 @@ void NRatAssign::evaluate() {
 }
 
 
+NModAssign::NModAssign(const std::string& initializer, Node* value)
+    : initializer(initializer), expr(value)
+{}
+
+void NModAssign::evaluate() {
+    if (!expr->isEval())
+        expr->evaluate();
+    value = ((NModVal*)expr)->getValue();
+    Interpreter::setModValue(initializer, value);
+    evaluated = true;
+}
+
+
 NIntValVar::NIntValVar(const std::string& name) : name(name) {}
 
 void NIntValVar::evaluate() {
@@ -141,7 +200,16 @@ void NIntValVar::evaluate() {
 
 
 NRatValVar::NRatValVar(const std::string& name) : name(name) {}
+
 void NRatValVar::evaluate() {
     value = Interpreter::getRatValue(name);
+    evaluated = true;
+}
+
+
+NModValVar::NModValVar(const std::string& name) : name(name) {}
+
+void NModValVar::evaluate() {
+    value = Interpreter::getModValue(name);
     evaluated = true;
 }

@@ -49,6 +49,8 @@ Node* Parser::statement() {
                 nodes.push_back(new NIntAssign(name, res));
             else if (t == Type::RATIONAL)
                 nodes.push_back(new NRatAssign(name, res));
+            else if (t == Type::MODULAR)
+                nodes.push_back(new NModAssign(name, res));
             else
                 throw std::runtime_error("Can't assign " + std::string(t));
         } else {
@@ -86,6 +88,8 @@ Node* Parser::expr() {
             nodes.push_back(new NIntOp(l, token.second, r));
         else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
             nodes.push_back(new NRatOp(l, token.second, r));
+        else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
+            nodes.push_back(new NModOp(l, token.second, r));
         else
             throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
                                      std::string(rtype) + ")");
@@ -121,6 +125,8 @@ Node* Parser::term() {
             nodes.push_back(new NIntOp(l, token.second, r));
         else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
             nodes.push_back(new NRatOp(l, token.second, r));
+        else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
+            nodes.push_back(new NModOp(l, token.second, r));
         else
             throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
                                      std::string(rtype) + ")");
@@ -213,6 +219,15 @@ Node* Parser::prime() {
         eat(TokenName::RPAREN);
         return res;
     } 
+    else if (token.first == TokenName::LSQUARE) {
+        eat(TokenName::LSQUARE);
+        Node* a = statement();
+        eat(TokenName::COMMA);
+        Node* N = statement();
+        eat(TokenName::RSQUARE);
+        nodes.push_back(new NMod(a, N));
+        return nodes.back();
+    }
     else
         throw std::runtime_error("Unexpected token " + tokens[current].second);
 }
