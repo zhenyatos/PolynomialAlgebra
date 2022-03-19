@@ -16,8 +16,10 @@ public:
 private:
     size_t current;
     std::vector<Token> tokens;
+    std::vector<Node*> nodes;
 
     void eat(const TokenName& tokenName);
+
     Node* sentence();
     Node* statement();
     Node* expr();
@@ -27,5 +29,6 @@ private:
     Node* prime();
     Node* number();
 
-    std::vector<Node*> nodes;
+    bool end() { return current >= tokens.size(); }
+    Node* varval(Node* arg);
 };

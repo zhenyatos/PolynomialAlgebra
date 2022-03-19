@@ -121,3 +121,19 @@ Node* gcd(Node* a, Node* b) {
                                 std::string(b->type) + ")");
     return new NIntGCD(a, b);       
 }
+
+Node* binop(Node* l, Node* r, const std::string& op) {
+    Type ltype = l->type;
+    Type rtype = r->type;
+    if (ltype == Type::INTEGER && rtype == Type::INTEGER)
+        return new NIntOp(l, op, r);
+    else if (ltype == Type::RATIONAL && rtype == Type::RATIONAL ||
+            ltype == Type::INTEGER && rtype == Type::RATIONAL ||
+            ltype == Type::RATIONAL && rtype == Type::INTEGER)
+        return new NRatOp(l, op, r);
+    else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
+        return new NModOp(l, op, r);
+    else
+        throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
+                                    std::string(rtype) + ")");
+}
