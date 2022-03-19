@@ -258,6 +258,18 @@ private:
     std::string initializer;
 };
 
+class NIntPolyAssign : public NIntPolyVal {
+public:
+    NIntPolyAssign(const std::string& initializer, Node* value);
+    ~NIntPolyAssign() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* expr;
+    std::string initializer;
+};
+
 class NIntValVar : public NIntVal {
 public:
     NIntValVar(const std::string& name);
@@ -284,6 +296,17 @@ class NModValVar : public NModVal {
 public:
     NModValVar(const std::string& name);
     ~NModValVar() override = default;
+
+    void evaluate() override;
+
+private:
+    std::string name;
+};
+
+class NIntPolyValVar : public NIntPolyVal {
+public:
+    NIntPolyValVar(const std::string& name);
+    ~NIntPolyValVar() override = default;
 
     void evaluate() override;
 

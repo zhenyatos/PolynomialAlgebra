@@ -154,6 +154,9 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
     if (ltype == Type::INTEGER && rtype == Type::INTEGER) {
         return new NIntPolyOp(l, op, r);
     }
+    else
+        throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
+                                    std::string(rtype) + ")");
 }
 
 Node* monomial(Node* l, Node* r) {

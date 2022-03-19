@@ -12,6 +12,8 @@ Node* NVar::value() {
         return new NRatValVar(name);
     else if (check.second == Type::MODULAR)
         return new NModValVar(name);
+    else if (check.second == Type::POLYNOMIAL)
+        return new NIntPolyValVar(name);
 }
 
 NInt::NInt(Integer val) { value = val; }
@@ -256,6 +258,19 @@ void NModAssign::evaluate() {
 }
 
 
+NIntPolyAssign::NIntPolyAssign(const std::string& initializer, Node* value)
+    : initializer(initializer), expr(value)
+{}
+
+void NIntPolyAssign::evaluate() {
+    if (!expr->isEval())
+        expr->evaluate();
+    poly = ((NIntPolyVal*)expr)->getPoly();
+    Interpreter::setPolyIntValue(initializer, poly);
+    evaluated = true;
+}
+
+
 NIntValVar::NIntValVar(const std::string& name) : name(name) {}
 
 void NIntValVar::evaluate() {
@@ -276,5 +291,13 @@ NModValVar::NModValVar(const std::string& name) : name(name) {}
 
 void NModValVar::evaluate() {
     value = Interpreter::getModValue(name);
+    evaluated = true;
+}
+
+
+NIntPolyValVar::NIntPolyValVar(const std::string& name) : name(name) {}
+
+void NIntPolyValVar::evaluate() {
+    poly = Interpreter::getPolyIntValue(name);
     evaluated = true;
 }

@@ -57,6 +57,8 @@ Node* Parser::statement() {
                 nodes.push_back(new NRatAssign(name, res));
             else if (t == Type::MODULAR)
                 nodes.push_back(new NModAssign(name, res));
+            else if (t == Type::POLYNOMIAL)
+                nodes.push_back(new NIntPolyAssign(name, res));
             else
                 throw std::runtime_error("Can't assign " + std::string(t));
         } else {

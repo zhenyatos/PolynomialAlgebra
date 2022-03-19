@@ -3,6 +3,7 @@
 #include "Type.hpp"
 #include "Rational.hpp"
 #include "Modular.hpp"
+#include "Polynomial.hpp"
 #include <string>
 #include <map>
 
@@ -11,6 +12,7 @@ private:
     static std::map<std::string, Integer> intVars;
     static std::map<std::string, Rational> ratVars;
     static std::map<std::string, Modular> modVars;
+    static std::map<std::string, Polynomial<Integer>> intPolyVars;
 
 public:
     Interpreter() = delete;
@@ -23,9 +25,13 @@ public:
 
     static void setModValue(const std::string& name, Modular value);
 
+    static void setPolyIntValue(const std::string& name, const Polynomial<Integer>& value);
+
     static Integer getIntValue(const std::string& name);
 
     static Rational getRatValue(const std::string& name);
 
     static Modular getModValue(const std::string& name);
+
+    static Polynomial<Integer> getPolyIntValue(const std::string& name);
 };
