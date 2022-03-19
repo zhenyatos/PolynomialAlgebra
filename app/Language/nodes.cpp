@@ -50,6 +50,19 @@ void NMod::evaluate() {
 }
 
 
+NIntPolyMono::NIntPolyMono(Node* c, Node* m) : c(c), m(m) {}
+void NIntPolyMono::evaluate() {
+    if (!c->isEval())
+        c->evaluate();
+    if (!m->isEval())
+        m->evaluate();
+    Integer coeff = ((NIntVal*)c)->getValue();
+    Integer deg = ((NMonom*)m)->getDeg();
+    poly = Polynomial<Integer>::Monomial(coeff, int(deg));
+    evaluated = true;
+}
+
+
 NPowMonom::NPowMonom(Node* N) : N(N) {}
 
 void NPowMonom::evaluate() {
@@ -145,6 +158,36 @@ void NModOp::evaluate() {
     evaluated = true;
 }
 
+NIntPolyOp::NIntPolyOp(Node* left, const std::string& op, Node* right) 
+    : left(left), op(op), right(right)
+{}
+
+void NIntPolyOp::evaluate() {
+    if (!left->isEval())
+        left->evaluate();
+    if (!right->isEval())
+        right->evaluate();
+    Polynomial<Integer> a;
+    Polynomial<Integer> b;
+    if (left->type == Type::INTEGER)
+        a = Polynomial<Integer>({((NIntVal*)left)->getValue()});
+    else
+        a = ((NIntPolyVal*)left)->getPoly();
+    if (right->type == Type::INTEGER)
+        b = Polynomial<Integer>({((NIntVal*)right)->getValue()});
+    else
+        b = ((NIntPolyVal*)right)->getPoly();
+
+    if (op == "+")
+        poly = a + b;
+    else if (op == "-")
+        poly = a - b;
+    else if (op == "*")
+        poly = a * b;
+
+    evaluated = true;
+}
+
 
 NPrint::NPrint(Node* value)
     : Node(Type::NOTHING), expr(value)
@@ -163,6 +206,12 @@ void NPrint::evaluate() {
     else if (type == Type::MONOMIAL) {
         NMonom* m = (NMonom*)expr;
         std::cout << "X^" << m->getDeg() << std::endl;
+    } 
+    else if (type == Type::POLYNOMIAL) {
+        Type b = ((NPolyVal*)expr)->getBase();
+        if (b == Type::INTEGER) {
+            std::cout << ((NIntPolyVal*)expr)->getPoly() << std::endl;
+        }
     }
     evaluated = true;
 }

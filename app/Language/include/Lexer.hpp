@@ -7,7 +7,7 @@ class TokenName {
 public:
     static const TokenName RESERVED_WORD, PLUS, MINUS, MUL, DIV, ASSIGNMENT,
                             NUMBER, IDENTIFIER, LSQUARE, RSQUARE, LPAREN, RPAREN, FRACBAR,
-                            COMMA, END_OF_COMMAND, POWER;
+                            COMMA, END_OF_COMMAND, POWER, DOT;
 
     bool operator==(const TokenName& other) { return code == other.code; }
     bool operator!=(const TokenName& other) { return code != other.code; }
@@ -15,7 +15,7 @@ public:
     const char* name() const { return names[code]; }
 
 private:
-    static const char* names[15];
+    static const char* names[17];
     size_t code;
 
     TokenName(size_t code) 

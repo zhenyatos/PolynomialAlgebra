@@ -13,6 +13,7 @@ public:
     static const Type MODULAR;
     static const Type VARIABLE;
     static const Type MONOMIAL;
+    static const Type POLYNOMIAL;
 
     bool operator==(const Type& other) const { return code == other.code; }
     bool operator!=(const Type& other) const { return code != other.code; }
@@ -24,5 +25,5 @@ public:
 private:
     size_t code;
 
-    static const char* message[6];
+    static const char* message[7];
 };

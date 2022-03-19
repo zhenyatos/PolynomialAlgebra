@@ -133,7 +133,30 @@ Node* binop(Node* l, Node* r, const std::string& op) {
         return new NRatOp(l, op, r);
     else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
         return new NModOp(l, op, r);
+    else if (ltype == Type::POLYNOMIAL || rtype == Type::POLYNOMIAL)
+        return polyop(l, r, op);
     else
         throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
                                     std::string(rtype) + ")");
+}
+
+Node* polyop(Node* l, Node* r, const std::string& op) {
+    Type ltype;
+    Type rtype;
+    if (l->type == Type::POLYNOMIAL)
+        ltype = ((NPolyVal*)l)->getBase();
+    else
+        ltype = l->type;
+    if (r->type == Type::POLYNOMIAL) 
+        rtype = ((NPolyVal*)r)->getBase();
+    else 
+        rtype = r->type;
+    if (ltype == Type::INTEGER && rtype == Type::INTEGER) {
+        return new NIntPolyOp(l, op, r);
+    }
+}
+
+Node* monomial(Node* l, Node* r) {
+    if (l->type == Type::INTEGER)
+        return new NIntPolyMono(l, r);
 }

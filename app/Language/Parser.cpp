@@ -151,10 +151,13 @@ Node* Parser::factor() {
     }
 
     Node* p = prime();
+    if (current >= tokens.size())
+        return p;
     Type ltype, rtype;
     if (tokens[current].first == TokenName::POWER) {
         eat(TokenName::POWER);
-        Node* n = factor();
+        p = varval(p);
+        Node* n = varval(factor());
         ltype = p->type;
         rtype = n->type;
         if (ltype == Type::MONOMIAL && rtype == Type::INTEGER) {
@@ -163,6 +166,22 @@ Node* Parser::factor() {
         } 
         else
             throw std::runtime_error("No method matching ^(" + std::string(ltype) + ", " + 
+                                        std::string(rtype) + ")");
+    }
+    else if (tokens[current].first == TokenName::DOT) {
+        eat(TokenName::DOT);
+        p = varval(p);
+        Node* m = varval(factor());
+        ltype = p->type;
+        rtype = m->type;
+        if (rtype == Type::MONOMIAL) {
+            if (ltype == Type::INTEGER) {
+                nodes.push_back(new NIntPolyMono(p, m));
+                return nodes.back();
+            }
+        }
+        else
+            throw std::runtime_error("No method matching .(" + std::string(ltype) + ", " +
                                         std::string(rtype) + ")");
     }
 
@@ -256,12 +275,14 @@ const Type Type::RATIONAL = Type(2);
 const Type Type::MODULAR = Type(3);
 const Type Type::VARIABLE = Type(4);
 const Type Type::MONOMIAL = Type(5);
+const Type Type::POLYNOMIAL = Type(6);
 
-const char* Type::message[6] = {
+const char* Type::message[7] = {
     "NOTHING",
     "INTEGER",
     "RATIONAL",
     "MODULAR",
     "VARIABLE",
-    "MONOMIAL"
+    "MONOMIAL",
+    "POLYNOMIAL"
 };
