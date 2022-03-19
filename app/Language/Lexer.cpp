@@ -73,6 +73,9 @@ std::vector<Token> Lexer::parse(std::string line) {
                 result.push_back({TokenName::MUL, line.substr(0, 1)});
             else if (line[0] == '=')
                 result.push_back({TokenName::ASSIGNMENT, line.substr(0, 1)});
+            // operator ^
+            else if (line[0] == '^')
+                result.push_back({TokenName::POWER, line.substr(0, 1)});
             // bad
             else
                 throw std::invalid_argument("Unexpected character " + line.substr(0, 1));
@@ -115,3 +118,4 @@ const TokenName TokenName::RPAREN         = TokenName(11);
 const TokenName TokenName::FRACBAR        = TokenName(12); 
 const TokenName TokenName::COMMA          = TokenName(13);
 const TokenName TokenName::END_OF_COMMAND = TokenName(14);
+const TokenName TokenName::POWER          = TokenName(15);

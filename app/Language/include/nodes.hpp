@@ -54,12 +54,25 @@ protected:
     Modular value;
 };
 
+class NMonom : public Node {
+public:
+    NMonom() : Node(Type::MONOMIAL), deg(1) {}
+    virtual ~NMonom() override = default;
+
+    void evaluate() override { evaluated = true; }
+
+    Integer getDeg() const { return deg; }
+    
+protected:
+    Integer deg;
+};
+
 class NVar : public Node {
 public:
     NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
     virtual ~NVar() override = default;
 
-    void evaluate() override {}
+    void evaluate() override { evaluated = true; }
 
     Node* value();
     std::string getName() { return name; }
@@ -97,6 +110,17 @@ public:
 
 private:
     Node* a;
+    Node* N;
+};
+
+class NPowMonom : public NMonom {
+public:
+    NPowMonom(Node* N);
+    ~NPowMonom() override = default;
+
+    void evaluate() override;
+
+private:
     Node* N;
 };
 

@@ -150,7 +150,23 @@ Node* Parser::factor() {
         return nodes.back();
     }
 
-    return prime();
+    Node* p = prime();
+    Type ltype, rtype;
+    if (tokens[current].first == TokenName::POWER) {
+        eat(TokenName::POWER);
+        Node* n = factor();
+        ltype = p->type;
+        rtype = n->type;
+        if (ltype == Type::MONOMIAL && rtype == Type::INTEGER) {
+            nodes.push_back(new NPowMonom(n));
+            return nodes.back();
+        } 
+        else
+            throw std::runtime_error("No method matching ^(" + std::string(ltype) + ", " + 
+                                        std::string(rtype) + ")");
+    }
+
+    return p;
 }
 
 Node* Parser::prime() {     
@@ -165,18 +181,22 @@ Node* Parser::prime() {
     }
     else if (token.first == TokenName::RESERVED_WORD) {
         eat(TokenName::RESERVED_WORD);
-        eat(TokenName::LPAREN);
-        if (token.second == "print")
-            nodes.push_back(new NPrint(statement()));
-        else if (token.second == "abs")
-            nodes.push_back(abs(statement()));
-        else if (token.second == "gcd") {
-            Node* l = statement();
-            eat(TokenName::COMMA);
-            Node* r = statement();
-            nodes.push_back(gcd(l, r));
+        if (token.second == "X")
+            nodes.push_back(new NMonom());
+        else {
+            eat(TokenName::LPAREN);
+            if (token.second == "print")
+                nodes.push_back(new NPrint(statement()));
+            else if (token.second == "abs")
+                nodes.push_back(abs(statement()));
+            else if (token.second == "gcd") {
+                Node* l = statement();
+                eat(TokenName::COMMA);
+                Node* r = statement();
+                nodes.push_back(gcd(l, r));
+            }
+            eat(TokenName::RPAREN);
         }
-        eat(TokenName::RPAREN);
         return nodes.back();
     }
     else if (token.first == TokenName::IDENTIFIER) {
@@ -235,11 +255,13 @@ const Type Type::INTEGER = Type(1);
 const Type Type::RATIONAL = Type(2);
 const Type Type::MODULAR = Type(3);
 const Type Type::VARIABLE = Type(4);
+const Type Type::MONOMIAL = Type(5);
 
-const char* Type::message[5] = {
+const char* Type::message[6] = {
     "NOTHING",
     "INTEGER",
     "RATIONAL",
     "MODULAR",
-    "VARIABLE"
+    "VARIABLE",
+    "MONOMIAL"
 };

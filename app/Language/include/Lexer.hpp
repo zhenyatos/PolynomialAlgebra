@@ -7,7 +7,7 @@ class TokenName {
 public:
     static const TokenName RESERVED_WORD, PLUS, MINUS, MUL, DIV, ASSIGNMENT,
                             NUMBER, IDENTIFIER, LSQUARE, RSQUARE, LPAREN, RPAREN, FRACBAR,
-                            COMMA, END_OF_COMMAND;
+                            COMMA, END_OF_COMMAND, POWER;
 
     bool operator==(const TokenName& other) { return code == other.code; }
     bool operator!=(const TokenName& other) { return code != other.code; }

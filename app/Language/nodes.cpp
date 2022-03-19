@@ -50,6 +50,18 @@ void NMod::evaluate() {
 }
 
 
+NPowMonom::NPowMonom(Node* N) : N(N) {}
+
+void NPowMonom::evaluate() {
+    if (!N->isEval())  
+        N->evaluate();
+    deg = ((NIntVal*)N)->getValue();
+    if (deg < 0)
+        throw std::runtime_error("The monomial degree is negative");
+    evaluated = true;
+}
+
+
 NIntOp::NIntOp(Node* left, const std::string& op, Node* right)
     : left(left), op(op), right(right)
 {}
@@ -148,6 +160,10 @@ void NPrint::evaluate() {
         std::cout << ((NRatVal*)expr)->getValue() << std::endl;
     else if (type == Type::MODULAR)
         std::cout << ((NModVal*)expr)->getValue() << std::endl;
+    else if (type == Type::MONOMIAL) {
+        NMonom* m = (NMonom*)expr;
+        std::cout << "X^" << m->getDeg() << std::endl;
+    }
     evaluated = true;
 }
 
