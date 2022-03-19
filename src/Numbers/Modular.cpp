@@ -1,5 +1,25 @@
 #include "Modular.hpp"
 
+class ModularError {
+public:
+    static const ModularError NEGATIVE_MODULUS;
+    static const ModularError NO_INVERSE;
+    static const ModularError DIFF_MODULUS;
+
+    constexpr operator const char*() {
+        return message[code];
+    }
+
+private:
+    static const char* message[3];
+
+    size_t code;
+
+    ModularError(size_t code)
+        : code(code)
+    {}
+};
+
 
 Modular::Modular() 
     : N(0), val(0)
@@ -141,3 +161,13 @@ Modular operator/(Modular a, const Modular& b) {
     a /= b;
     return a;
 }
+
+const ModularError ModularError::NEGATIVE_MODULUS = ModularError(0);
+const ModularError ModularError::NO_INVERSE = ModularError(1);
+const ModularError ModularError::DIFF_MODULUS = ModularError(2);
+
+const char* ModularError::message[3] = {
+        "Modulus must be a positive integer",
+        "The number has no multiplicative inverse by this modulus",
+        "Operands have different modulus"
+    };

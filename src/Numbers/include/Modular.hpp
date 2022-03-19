@@ -1,6 +1,5 @@
 #pragma once
 #include "Integer.hpp"
-#include "ModularError.hpp"
 #include <stdexcept>
 
 class Modular {
