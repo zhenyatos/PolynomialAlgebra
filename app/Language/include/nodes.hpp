@@ -1,6 +1,7 @@
 #pragma once
 #include "Integer.hpp"
 #include "Rational.hpp"
+#include "Modular.hpp"
 #include "Type.hpp"
 #define c_red "\u001b[31m"
 #define c_yellow "\u001b[33m"
@@ -42,6 +43,17 @@ protected:
     Rational value;
 };
 
+class NModVal : public Node {
+public:
+    NModVal() : Node(Type::MODULAR) {}
+    virtual ~NModVal() override = default;
+
+    Modular getValue() const { return value; }
+
+protected:
+    Modular value;
+};
+
 class NVar : public Node {
 public:
     NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
@@ -76,6 +88,18 @@ private:
     Node* q;
 };
 
+class NMod : public NModVal {
+public:
+    NMod(Node* a, Node* N);
+    ~NMod() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* a;
+    Node* N;
+};
+
 class NIntOp : public NIntVal {
 public:
     NIntOp(Node* left, const std::string& op, Node* right);
@@ -93,6 +117,19 @@ class NRatOp : public NRatVal {
 public:
     NRatOp(Node* left, const std::string& op, Node* right);
     ~NRatOp() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* left;
+    Node* right;
+    std::string op;
+};
+
+class NModOp : public NModVal {
+public:
+    NModOp(Node* left, const std::string& op, Node* right);
+    ~NModOp() override = default;
 
     void evaluate() override;
 
@@ -137,6 +174,18 @@ private:
     std::string initializer;
 };
 
+class NModAssign : public NModVal {
+public:
+    NModAssign(const std::string& initializer, Node* value);
+    ~NModAssign() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* expr;
+    std::string initializer;
+};
+
 class NIntValVar : public NIntVal {
 public:
     NIntValVar(const std::string& name);
@@ -152,6 +201,17 @@ class NRatValVar : public NRatVal {
 public:
     NRatValVar(const std::string& name);
     ~NRatValVar() override = default;
+
+    void evaluate() override;
+
+private:
+    std::string name;
+};
+
+class NModValVar : public NModVal {
+public:
+    NModValVar(const std::string& name);
+    ~NModValVar() override = default;
 
     void evaluate() override;
 

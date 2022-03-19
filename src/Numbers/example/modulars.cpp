@@ -2,25 +2,25 @@
 #include <iostream>
 
 int main() {
-    Modular<5> a(2);
-    Modular<5> b(3);
+    Modular a(2, 5);
+    Modular b(3, 5);
 
     try {
-        Modular<-1> bad;
+        Modular bad(0, -1);
     } catch (const std::exception& err) {
         std::cout << err.what() << std::endl;
     }
 
-    Modular<5> c = a + b;
-    Modular<5> d = a - b;
-    Modular<5> e = b * b;
+    Modular c = a + b;
+    Modular d = a - b;
+    Modular e = b * b;
     std::cout << c << " " << d << " " << e << std::endl;
 
-    Modular<13> t(5);
+    Modular t(5, 13);
     std::cout << t.inv() << std::endl;
 
     try {
-        Modular<4>(2).inv();
+        Modular(2, 4).inv();
     } catch (const std::exception& err) {
         std::cout << err.what() << std::endl;
     }

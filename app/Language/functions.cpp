@@ -60,6 +60,21 @@ private:
     Node* arg;
 };
 
+class NModUMin : public NModVal {
+public:
+    NModUMin(Node* arg) : arg(arg) {}
+    ~NModUMin() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        value = -((NModVal*)arg)->getValue();
+    }
+
+private:
+    Node* arg;
+};
+
 class NIntGCD : public NIntVal {
 public:
     NIntGCD(Node* a, Node* b) : a(a), b(b) {}
@@ -90,11 +105,13 @@ Node* abs(Node* x) {
 
 Node* unmin(Node* x) {
     Type t = x->type;
-    if (t == Type::INTEGER) {
+    if (t == Type::INTEGER) 
         return new NIntUMin(x);
-    } else if (t == Type::RATIONAL) {
+    else if (t == Type::RATIONAL) 
         return new NRatUMin(x);
-    } else
+    else if (t == Type::MODULAR)
+        return new NModUMin(x);
+    else
         throw std::runtime_error("No function matching -(" + std::string(t) + ")");
 }
 
@@ -103,4 +120,20 @@ Node* gcd(Node* a, Node* b) {
         throw std::runtime_error("No function matching gcd(" + std::string(a->type) + ", " +
                                 std::string(b->type) + ")");
     return new NIntGCD(a, b);       
+}
+
+Node* binop(Node* l, Node* r, const std::string& op) {
+    Type ltype = l->type;
+    Type rtype = r->type;
+    if (ltype == Type::INTEGER && rtype == Type::INTEGER)
+        return new NIntOp(l, op, r);
+    else if (ltype == Type::RATIONAL && rtype == Type::RATIONAL ||
+            ltype == Type::INTEGER && rtype == Type::RATIONAL ||
+            ltype == Type::RATIONAL && rtype == Type::INTEGER)
+        return new NRatOp(l, op, r);
+    else if (ltype == Type::MODULAR && rtype == Type::MODULAR)
+        return new NModOp(l, op, r);
+    else
+        throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
+                                    std::string(rtype) + ")");
 }

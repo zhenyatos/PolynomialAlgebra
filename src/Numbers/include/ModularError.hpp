@@ -3,15 +3,16 @@
 
 class ModularError {
 public:
-    static const ModularError NONPOSITIVE_MODULUS;
+    static const ModularError NEGATIVE_MODULUS;
     static const ModularError NO_INVERSE;
+    static const ModularError DIFF_MODULUS;
 
     constexpr operator const char*() {
         return message[code];
     }
 
 private:
-    static const char* message[2];
+    static const char* message[3];
 
     size_t code;
 

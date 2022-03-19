@@ -22,11 +22,15 @@ Node* Parser::sentence() {
 
     Node* res = statement();
 
-    if (current < tokens.size() && tokens[current].first == TokenName::END_OF_COMMAND) {
-        eat(TokenName::END_OF_COMMAND);
-        res->evaluate(); 
-        freeNodes();
-        res = sentence();
+    if (current < tokens.size()) {
+        if (tokens[current].first == TokenName::END_OF_COMMAND) {
+            eat(TokenName::END_OF_COMMAND);
+            res->evaluate(); 
+            freeNodes();
+            res = sentence();
+        }
+        else
+            throw std::runtime_error("Unexpected token " + tokens[current].second + " after end of expression");
     } else {
         nodes.push_back(new NPrint(res));
         return nodes.back();
@@ -36,6 +40,8 @@ Node* Parser::sentence() {
 }
 
 Node* Parser::statement() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     Node* l = expr();
 
     if (l->type == Type::VARIABLE) {
@@ -49,6 +55,8 @@ Node* Parser::statement() {
                 nodes.push_back(new NIntAssign(name, res));
             else if (t == Type::RATIONAL)
                 nodes.push_back(new NRatAssign(name, res));
+            else if (t == Type::MODULAR)
+                nodes.push_back(new NModAssign(name, res));
             else
                 throw std::runtime_error("Can't assign " + std::string(t));
         } else {
@@ -61,6 +69,8 @@ Node* Parser::statement() {
 }
 
 Node* Parser::expr() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     Node* l = term();
 
     while (tokens[current].first == TokenName::PLUS || 
@@ -71,24 +81,10 @@ Node* Parser::expr() {
         else
             eat(TokenName::MINUS);
         
-        if (l->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)l)->value());
-            l = nodes.back();
-        }
-        Type ltype = l->type;
-        Node* r = term();
-        if (r->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)r)->value());
-            r = nodes.back();
-        }
-        Type rtype = r->type;
-        if (ltype == Type::INTEGER && rtype == Type::INTEGER)
-            nodes.push_back(new NIntOp(l, token.second, r));
-        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
-            nodes.push_back(new NRatOp(l, token.second, r));
-        else
-            throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
-                                     std::string(rtype) + ")");
+        l = varval(l);
+        Node* r = varval(term());
+        
+        nodes.push_back(binop(l, r, token.second));
         l = nodes.back(); 
     }
 
@@ -96,6 +92,8 @@ Node* Parser::expr() {
 }
 
 Node* Parser::term() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     Node* l = subterm();
 
     while (tokens[current].first == TokenName::MUL ||
@@ -106,25 +104,10 @@ Node* Parser::term() {
         else
             eat(TokenName::DIV);
         
-        if (l->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)l)->value());
-            l = nodes.back();
-        }
-        Type ltype = l->type;
-        Node* r = subterm();
-        if (r->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)r)->value());
-            r = nodes.back();
-        }
-        Type rtype = r->type;
-        if (ltype == Type::INTEGER && rtype == Type::INTEGER)
-            nodes.push_back(new NIntOp(l, token.second, r));
-        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
-            nodes.push_back(new NRatOp(l, token.second, r));
-        else
-            throw std::runtime_error("No method matching " + token.second + "(" + std::string(ltype) + ", " +
-                                     std::string(rtype) + ")");
-        
+        l = varval(l);
+        Node* r = varval(subterm());
+
+        nodes.push_back(binop(l, r, token.second));
         l = nodes.back();
     }
 
@@ -132,21 +115,16 @@ Node* Parser::term() {
 }
 
 Node* Parser::subterm() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     Node* l = factor();
 
     while (tokens[current].first == TokenName::FRACBAR) {
         eat(TokenName::FRACBAR);
 
-        if (l->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)l)->value());
-            l = nodes.back();
-        }
+        l = varval(l);
+        Node* r = varval(factor());
         Type ltype = l->type;
-        Node* r = factor();
-        if (r->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)r)->value());
-            r = nodes.back();
-        }
         Type rtype = r->type;
         if (ltype == Type::INTEGER && rtype == Type::INTEGER)
             nodes.push_back(new NRat(l, r));
@@ -163,13 +141,11 @@ Node* Parser::subterm() {
 }
 
 Node* Parser::factor() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     if (tokens[current].first == TokenName::MINUS) {
         eat(TokenName::MINUS);
-        Node* p = prime();
-        if (p->type == Type::VARIABLE) {
-            nodes.push_back(((NVar*)p)->value());
-            p = nodes.back();
-        }
+        Node* p = varval(prime());
         nodes.push_back(unmin(p));
         return nodes.back();
     }
@@ -178,6 +154,8 @@ Node* Parser::factor() {
 }
 
 Node* Parser::prime() {     
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
     Token token = tokens[current];
 
     if (token.first == TokenName::NUMBER) {
@@ -213,8 +191,25 @@ Node* Parser::prime() {
         eat(TokenName::RPAREN);
         return res;
     } 
+    else if (token.first == TokenName::LSQUARE) {
+        eat(TokenName::LSQUARE);
+        Node* a = statement();
+        eat(TokenName::COMMA);
+        Node* N = statement();
+        eat(TokenName::RSQUARE);
+        nodes.push_back(new NMod(a, N));
+        return nodes.back();
+    }
     else
         throw std::runtime_error("Unexpected token " + tokens[current].second);
+}
+
+Node* Parser::varval(Node* arg) {
+    if (arg->type == Type::VARIABLE) {
+        nodes.push_back(((NVar*)arg)->value());
+        return nodes.back();
+    }
+    return arg;
 }
 
 Node* Parser::AST() {
