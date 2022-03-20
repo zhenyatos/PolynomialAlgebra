@@ -12,3 +12,5 @@ Node* binop(Node* l, Node* r, const std::string& op);
 Node* monomial(Node* l, Node* r);
 
 Node* polyop(Node* l, Node* r, const std::string& op);
+
+Node* peval(Node* p, Node* x);

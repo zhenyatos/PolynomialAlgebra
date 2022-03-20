@@ -93,6 +93,26 @@ private:
     Node* b;
 };
 
+class NIntPolyEvaluate : public NIntVal {
+public:
+    NIntPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
+    ~NIntPolyEvaluate() override = default;
+
+    void evaluate() override {
+        if (!p->isEval())
+            p->evaluate();
+        if (!x->isEval())
+            x->evaluate();
+        Polynomial<Integer> poly = ((NIntPolyVal*)p)->getPoly();
+        value = poly(((NIntVal*)x)->getValue());
+        evaluated = true;
+    }
+
+private:
+    Node* p;
+    Node* x;
+};
+
 Node* abs(Node* x) {
     Type t = x->type;
     if (t == Type::INTEGER) {
@@ -162,4 +182,11 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
 Node* monomial(Node* l, Node* r) {
     if (l->type == Type::INTEGER)
         return new NIntPolyMono(l, r);
+}
+
+Node* peval(Node* p, Node* x) {
+    if (p->type == Type::POLYNOMIAL && x->type == Type::INTEGER)
+        return new NIntPolyEvaluate(p, x);
+    else
+        throw std::runtime_error("NAD");
 }

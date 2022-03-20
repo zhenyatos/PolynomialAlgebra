@@ -216,6 +216,12 @@ Node* Parser::prime() {
                 Node* r = statement();
                 nodes.push_back(gcd(l, r));
             }
+            else if (token.second == "eval") {
+                Node* p = statement();
+                eat(TokenName::COMMA);
+                Node* x = statement();
+                nodes.push_back(peval(p, x));
+            }
             eat(TokenName::RPAREN);
         }
         return nodes.back();
