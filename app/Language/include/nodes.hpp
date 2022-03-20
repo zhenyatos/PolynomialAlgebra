@@ -55,41 +55,6 @@ protected:
     Modular value;
 };
 
-class NMonom : public Node {
-public:
-    NMonom() : Node(Type::MONOMIAL), deg(1) {}
-    virtual ~NMonom() override = default;
-
-    void evaluate() override { evaluated = true; }
-
-    Integer getDeg() const { return deg; }
-    
-protected:
-    Integer deg;
-};
-
-class NPolyVal : public Node {
-public:
-    NPolyVal(Type base) : Node(Type::POLYNOMIAL), base(base) {};
-    virtual ~NPolyVal() override = default;
-
-    Type getBase() const { return base; }
-
-protected:
-    Type base;
-};
-
-class NIntPolyVal : public NPolyVal {
-public: 
-    NIntPolyVal() : NPolyVal(Type::INTEGER) {}
-    virtual ~NIntPolyVal() override = default;
-
-    Polynomial<Integer> getPoly() const { return poly; }
-
-protected:
-    Polynomial<Integer> poly;
-};
-
 class NVar : public Node {
 public:
     NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
@@ -136,29 +101,6 @@ private:
     Node* N;
 };
 
-class NIntPolyMono : public NIntPolyVal {
-public: 
-    NIntPolyMono(Node* c, Node* m);
-    ~NIntPolyMono() override = default;
-
-    void evaluate() override;
-
-private:
-    Node* c;
-    Node* m;
-};
-
-class NPowMonom : public NMonom {
-public:
-    NPowMonom(Node* N);
-    ~NPowMonom() override = default;
-
-    void evaluate() override;
-
-private:
-    Node* N;
-};
-
 class NIntOp : public NIntVal {
 public:
     NIntOp(Node* left, const std::string& op, Node* right);
@@ -189,19 +131,6 @@ class NModOp : public NModVal {
 public:
     NModOp(Node* left, const std::string& op, Node* right);
     ~NModOp() override = default;
-
-    void evaluate() override;
-
-private:
-    Node* left;
-    Node* right;
-    std::string op;
-};
-
-class NIntPolyOp : public NIntPolyVal {
-public:
-    NIntPolyOp(Node* left, const std::string& op, Node* right);
-    ~NIntPolyOp() override = default;
 
     void evaluate() override;
 
@@ -258,18 +187,6 @@ private:
     std::string initializer;
 };
 
-class NIntPolyAssign : public NIntPolyVal {
-public:
-    NIntPolyAssign(const std::string& initializer, Node* value);
-    ~NIntPolyAssign() override = default;
-
-    void evaluate() override;
-
-private:
-    Node* expr;
-    std::string initializer;
-};
-
 class NIntValVar : public NIntVal {
 public:
     NIntValVar(const std::string& name);
@@ -296,17 +213,6 @@ class NModValVar : public NModVal {
 public:
     NModValVar(const std::string& name);
     ~NModValVar() override = default;
-
-    void evaluate() override;
-
-private:
-    std::string name;
-};
-
-class NIntPolyValVar : public NIntPolyVal {
-public:
-    NIntPolyValVar(const std::string& name);
-    ~NIntPolyValVar() override = default;
 
     void evaluate() override;
 

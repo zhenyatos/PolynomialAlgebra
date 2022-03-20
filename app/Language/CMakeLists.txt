@@ -1,4 +1,4 @@
-add_library(language SHARED Lexer.cpp Parser.cpp Interpreter.cpp nodes.cpp functions.cpp)
+add_library(language SHARED Lexer.cpp Parser.cpp Interpreter.cpp nodes.cpp functions.cpp polynodes.cpp)
 
 target_include_directories(language PUBLIC include)
 

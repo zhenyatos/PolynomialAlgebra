@@ -1,4 +1,5 @@
 #include "functions.hpp"
+#include "polynodes.hpp"
 
 class NIntAbs : public NIntVal {
 public:
@@ -171,9 +172,8 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
         rtype = ((NPolyVal*)r)->getBase();
     else 
         rtype = r->type;
-    if (ltype == Type::INTEGER && rtype == Type::INTEGER) {
+    if (ltype == Type::INTEGER && rtype == Type::INTEGER)
         return new NIntPolyOp(l, op, r);
-    }
     else
         throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
                                     std::string(rtype) + ")");

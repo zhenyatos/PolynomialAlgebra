@@ -14,6 +14,9 @@ public:
     static const Type VARIABLE;
     static const Type MONOMIAL;
     static const Type POLYNOMIAL;
+    static const Type POLY_INT;
+    static const Type POLY_RAT;
+    static const Type POLY_MOD;
 
     bool operator==(const Type& other) const { return code == other.code; }
     bool operator!=(const Type& other) const { return code != other.code; }
@@ -25,5 +28,5 @@ public:
 private:
     size_t code;
 
-    static const char* message[7];
+    static const char* message[10];
 };

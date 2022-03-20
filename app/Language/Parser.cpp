@@ -1,6 +1,7 @@
 #include "Parser.hpp"
 #include "Interpreter.hpp"
 #include "functions.hpp"
+#include "polynodes.hpp"
 #include <string>
     
 Parser::Parser(const std::vector<Token>& tokens) 
@@ -284,13 +285,19 @@ const Type Type::MODULAR = Type(3);
 const Type Type::VARIABLE = Type(4);
 const Type Type::MONOMIAL = Type(5);
 const Type Type::POLYNOMIAL = Type(6);
+const Type Type::POLY_INT = Type(7);
+const Type Type::POLY_RAT = Type(8);
+const Type Type::POLY_MOD = Type(9);
 
-const char* Type::message[7] = {
+const char* Type::message[10] = {
     "NOTHING",
     "INTEGER",
     "RATIONAL",
     "MODULAR",
     "VARIABLE",
     "MONOMIAL",
-    "POLYNOMIAL"
+    "POLYNOMIAL",
+    "POLYNOMIAL(INTEGER)",
+    "POLYNOMIAL(RATIONAL)",
+    "POLYNOMIAL(MODULAR)"
 };

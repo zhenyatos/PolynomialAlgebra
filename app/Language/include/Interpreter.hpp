@@ -13,6 +13,7 @@ private:
     static std::map<std::string, Rational> ratVars;
     static std::map<std::string, Modular> modVars;
     static std::map<std::string, Polynomial<Integer>> intPolyVars;
+    static std::map<std::string, Polynomial<Rational>> ratPolyVars;
 
 public:
     Interpreter() = delete;
