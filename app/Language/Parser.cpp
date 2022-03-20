@@ -98,7 +98,7 @@ Node* Parser::term() {
             eat(TokenName::DIV);
         
         l = varval(l);
-        Node* r = varval(subterm());
+        Node* r = varval(concat());
 
         nodes.push_back(binop(l, r, token.second));
         l = nodes.back();

@@ -247,12 +247,13 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
 
 Node* peval(Node* p, Node* x) {
     Type base = ((NPolyVal*)p)->getBase();
-    if (base == Type::RATIONAL && x->type == Type::INTEGER)
+    if (base == Type::INTEGER && x->type == Type::INTEGER)
         return new NIntPolyEvaluate(p, x);
     else if (base == Type::RATIONAL && x->type == Type::RATIONAL)
         return new NRatPolyEvaluate(p, x);
     else
-        throw std::runtime_error("NAD");
+        throw std::runtime_error("No method matching eval(POLYNOMIAL{" + std::string(base) + "}, " + 
+                                std::string(x->type) + ")");
 }
 
 Node* assign(std::string name, Node* val) {
