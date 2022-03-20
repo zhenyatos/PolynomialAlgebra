@@ -24,6 +24,7 @@ private:
     Node* statement();
     Node* expr();
     Node* term();
+    Node* concat();
     Node* subterm();
     Node* factor();
     Node* prime();

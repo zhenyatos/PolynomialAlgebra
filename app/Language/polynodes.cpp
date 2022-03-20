@@ -78,3 +78,71 @@ void NIntPolyValVar::evaluate() {
     evaluated = true;
 }
 
+
+NRatPolyMono::NRatPolyMono(Node* c, Node* m) : c(c), m(m) {}
+
+void NRatPolyMono::evaluate() {
+    if (!c->isEval())
+        c->evaluate();
+    if (!m->isEval())
+        m->evaluate();
+    Rational coeff = ((NRatVal*)c)->getValue();
+    Integer deg = ((NMonom*)m)->getDeg();
+    poly = Polynomial<Rational>::Monomial(coeff, int(deg));
+    evaluated = true;
+}
+
+
+NRatPolyOp::NRatPolyOp(Node* left, const std::string& op, Node* right) 
+    : left(left), op(op), right(right)
+{}
+
+void NRatPolyOp::evaluate() {
+    if (!left->isEval())
+        left->evaluate();
+    if (!right->isEval())
+        right->evaluate();
+    Polynomial<Rational> a;
+    Polynomial<Rational> b;
+    if (left->type == Type::RATIONAL)
+        a = Polynomial<Rational>({((NRatVal*)left)->getValue()});
+    else
+        a = ((NRatPolyVal*)left)->getPoly();
+    if (right->type == Type::RATIONAL)
+        b = Polynomial<Rational>({((NRatVal*)right)->getValue()});
+    else
+        b = ((NRatPolyVal*)right)->getPoly();
+
+    if (op == "+")
+        poly = a + b;
+    else if (op == "-")
+        poly = a - b;
+    else if (op == "*")
+        poly = a * b;
+    else if (op == "/")
+        poly = a.div(b);
+
+    evaluated = true;
+}
+
+
+NRatPolyAssign::NRatPolyAssign(const std::string& initializer, Node* value)
+    : initializer(initializer), expr(value)
+{}
+
+void NRatPolyAssign::evaluate() {
+    if (!expr->isEval())
+        expr->evaluate();
+    poly = ((NRatPolyVal*)expr)->getPoly();
+    Interpreter::setPolyRatValue(initializer, poly);
+    evaluated = true;
+}
+
+
+NRatPolyValVar::NRatPolyValVar(const std::string& name) : name(name) {}
+
+void NRatPolyValVar::evaluate() {
+    poly = Interpreter::getPolyRatValue(name);
+    evaluated = true;
+}
+

@@ -161,6 +161,13 @@ Node* binop(Node* l, Node* r, const std::string& op) {
                                     std::string(rtype) + ")");
 }
 
+Node* monomial(Node* l, Node* r) {
+    if (l->type == Type::INTEGER)
+        return new NIntPolyMono(l, r);
+    else if (l->type == Type::RATIONAL)
+        return new NRatPolyMono(l, r);
+}
+
 Node* polyop(Node* l, Node* r, const std::string& op) {
     Type ltype;
     Type rtype;
@@ -174,14 +181,11 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
         rtype = r->type;
     if (ltype == Type::INTEGER && rtype == Type::INTEGER)
         return new NIntPolyOp(l, op, r);
+    if (ltype == Type::RATIONAL && rtype == Type::RATIONAL)
+        return new NRatPolyOp(l, op, r);
     else
         throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
                                     std::string(rtype) + ")");
-}
-
-Node* monomial(Node* l, Node* r) {
-    if (l->type == Type::INTEGER)
-        return new NIntPolyMono(l, r);
 }
 
 Node* peval(Node* p, Node* x) {
@@ -189,4 +193,33 @@ Node* peval(Node* p, Node* x) {
         return new NIntPolyEvaluate(p, x);
     else
         throw std::runtime_error("NAD");
+}
+
+Node* assign(std::string name, Node* val) {
+    Type t = val->type;
+    if (t == Type::INTEGER)
+        return new NIntAssign(name, val);
+    else if (t == Type::RATIONAL)
+        return new NRatAssign(name, val);
+    else if (t == Type::MODULAR)
+        return new NModAssign(name, val);
+    else if (t == Type::POLYNOMIAL) {
+        Type base = ((NPolyVal*)val)->getBase();
+        if (base == Type::INTEGER)
+            return new NIntPolyAssign(name, val);
+        else if (base == Type::RATIONAL)
+            return new NRatPolyAssign(name, val);
+        else
+            throw std::runtime_error("Can't assign " + std::string(t) + "(" + std::string(base) + ")");
+    }
+    else
+        throw std::runtime_error("Can't assign " + std::string(t));
+}
+
+Node* polymono(Node* c, Node* m) {
+    Type t = c->type;
+    if (t == Type::INTEGER) 
+        return new NIntPolyMono(c, m);
+    else if (t == Type::RATIONAL)
+        return new NRatPolyMono(c, m);
 }

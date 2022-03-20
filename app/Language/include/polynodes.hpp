@@ -97,3 +97,62 @@ public:
 private:
     std::string name;
 };
+
+class NRatPolyVal : public NPolyVal {
+public: 
+    NRatPolyVal() : NPolyVal(Type::RATIONAL) {}
+    virtual ~NRatPolyVal() override = default;
+
+    Polynomial<Rational> getPoly() const { return poly; }
+
+protected:
+    Polynomial<Rational> poly;
+};
+
+class NRatPolyMono : public NRatPolyVal {
+public: 
+    NRatPolyMono(Node* c, Node* m);
+    ~NRatPolyMono() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* c;
+    Node* m;
+};
+
+class NRatPolyOp : public NRatPolyVal {
+public:
+    NRatPolyOp(Node* left, const std::string& op, Node* right);
+    ~NRatPolyOp() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* left;
+    Node* right;
+    std::string op;
+};
+
+class NRatPolyAssign : public NRatPolyVal {
+public:
+    NRatPolyAssign(const std::string& initializer, Node* value);
+    ~NRatPolyAssign() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* expr;
+    std::string initializer;
+};
+
+class NRatPolyValVar : public NRatPolyVal {
+public:
+    NRatPolyValVar(const std::string& name);
+    ~NRatPolyValVar() override = default;
+
+    void evaluate() override;
+
+private:
+    std::string name;
+};

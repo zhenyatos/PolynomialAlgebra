@@ -28,6 +28,8 @@ public:
 
     static void setPolyIntValue(const std::string& name, const Polynomial<Integer>& value);
 
+    static void setPolyRatValue(const std::string& name, const Polynomial<Rational>& value);
+
     static Integer getIntValue(const std::string& name);
 
     static Rational getRatValue(const std::string& name);
@@ -35,4 +37,6 @@ public:
     static Modular getModValue(const std::string& name);
 
     static Polynomial<Integer> getPolyIntValue(const std::string& name);
+
+    static Polynomial<Rational> getPolyRatValue(const std::string& name);
 };

@@ -15,6 +15,8 @@ Node* NVar::value() {
         return new NModValVar(name);
     else if (check.second == Type::POLY_INT)
         return new NIntPolyValVar(name);
+    else if (check.second == Type::POLY_RAT)
+        return new NRatPolyValVar(name);
 }
 
 NInt::NInt(Integer val) { value = val; }
@@ -157,9 +159,10 @@ void NPrint::evaluate() {
     } 
     else if (type == Type::POLYNOMIAL) {
         Type b = ((NPolyVal*)expr)->getBase();
-        if (b == Type::INTEGER) {
+        if (b == Type::INTEGER)
             std::cout << ((NIntPolyVal*)expr)->getPoly() << std::endl;
-        }
+        else if (b == Type::RATIONAL)
+            std::cout << ((NRatPolyVal*)expr)->getPoly() << std::endl;
     }
     evaluated = true;
 }

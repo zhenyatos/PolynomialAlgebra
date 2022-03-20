@@ -7,13 +7,16 @@ public:
         : code(code)
     {};
 
+    // Basic types
     static const Type NOTHING;
     static const Type INTEGER;
     static const Type RATIONAL;
     static const Type MODULAR;
+    // Parser-only types
     static const Type VARIABLE;
     static const Type MONOMIAL;
     static const Type POLYNOMIAL;
+    // Interpreter-only types
     static const Type POLY_INT;
     static const Type POLY_RAT;
     static const Type POLY_MOD;

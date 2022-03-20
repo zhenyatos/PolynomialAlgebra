@@ -72,6 +72,19 @@ void Interpreter::setPolyIntValue(const std::string& name, const Polynomial<Inte
     intPolyVars[name] = value;
 }
 
+void Interpreter::setPolyRatValue(const std::string& name, const Polynomial<Rational>& value) {
+    auto check = variableExists(name);
+    if (check.second == Type::INTEGER)
+        intVars.erase(name);
+    else if (check.second == Type::RATIONAL)
+        ratVars.erase(name);
+    else if (check.second == Type::MODULAR)
+        modVars.erase(name);
+    else if (check.second == Type::POLY_INT)
+        intPolyVars.erase(name);
+    ratPolyVars[name] = value;
+}
+
 Integer Interpreter::getIntValue(const std::string& name) {
     auto check = variableExists(name);
     if (!check.first)
@@ -106,4 +119,13 @@ Polynomial<Integer> Interpreter::getPolyIntValue(const std::string& name) {
     else if (check.second != Type::POLY_INT)
         throw std::runtime_error("Variable " + name + " is not POLYNOMIAL(INTEGER)");
     return intPolyVars[name];
+}
+
+Polynomial<Rational> Interpreter::getPolyRatValue(const std::string& name) {
+    auto check = variableExists(name);
+    if (!check.first)
+        throw std::runtime_error("Reference to the uninitialized variable " + name);
+    else if (check.second != Type::POLY_RAT)
+        throw std::runtime_error("Variable " + name + " is not POLYNOMIAL(RATIONAL)");
+    return ratPolyVars[name];
 }

@@ -51,17 +51,7 @@ Node* Parser::statement() {
         if (current < tokens.size() && tokens[current].first == TokenName::ASSIGNMENT) {
             eat(TokenName::ASSIGNMENT);
             Node* res = statement();
-            Type t = res->type;
-            if (t == Type::INTEGER)
-                nodes.push_back(new NIntAssign(name, res));
-            else if (t == Type::RATIONAL)
-                nodes.push_back(new NRatAssign(name, res));
-            else if (t == Type::MODULAR)
-                nodes.push_back(new NModAssign(name, res));
-            else if (t == Type::POLYNOMIAL)
-                nodes.push_back(new NIntPolyAssign(name, res));
-            else
-                throw std::runtime_error("Can't assign " + std::string(t));
+            nodes.push_back(assign(name, res));
         } else {
             nodes.push_back(var->value());
         }
@@ -97,7 +87,7 @@ Node* Parser::expr() {
 Node* Parser::term() {
     if (end())
         throw std::runtime_error("Unexpected end of line");
-    Node* l = subterm();
+    Node* l = concat();
 
     while (tokens[current].first == TokenName::MUL ||
             tokens[current].first == TokenName::DIV) {
@@ -112,6 +102,31 @@ Node* Parser::term() {
 
         nodes.push_back(binop(l, r, token.second));
         l = nodes.back();
+    }
+
+    return l;
+}
+
+Node* Parser::concat() {
+    if (end())
+        throw std::runtime_error("Unexpected end of line");
+    Node* l = subterm();
+
+    if (current >= tokens.size())
+        return l;
+
+    if (tokens[current].first == TokenName::DOT) {
+        eat(TokenName::DOT);
+        l = varval(l);
+        Node* r = varval(factor());
+        Type rtype = r->type;
+        if (rtype == Type::MONOMIAL) {
+            nodes.push_back(polymono(l, r));
+            return nodes.back();
+        }
+        else
+            throw std::runtime_error("No method matching .(" + std::string(l->type) + ", " +
+                                        std::string(rtype) + ")");
     }
 
     return l;
@@ -169,22 +184,6 @@ Node* Parser::factor() {
         } 
         else
             throw std::runtime_error("No method matching ^(" + std::string(ltype) + ", " + 
-                                        std::string(rtype) + ")");
-    }
-    else if (tokens[current].first == TokenName::DOT) {
-        eat(TokenName::DOT);
-        p = varval(p);
-        Node* m = varval(factor());
-        ltype = p->type;
-        rtype = m->type;
-        if (rtype == Type::MONOMIAL) {
-            if (ltype == Type::INTEGER) {
-                nodes.push_back(new NIntPolyMono(p, m));
-                return nodes.back();
-            }
-        }
-        else
-            throw std::runtime_error("No method matching .(" + std::string(ltype) + ", " +
                                         std::string(rtype) + ")");
     }
 
