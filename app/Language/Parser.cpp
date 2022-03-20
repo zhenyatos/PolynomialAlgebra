@@ -277,16 +277,16 @@ void Parser::freeNodes() {
     nodes.clear();
 }
 
-const Type Type::NOTHING = Type(0);
-const Type Type::INTEGER = Type(1);
-const Type Type::RATIONAL = Type(2);
-const Type Type::MODULAR = Type(3);
-const Type Type::VARIABLE = Type(4);
-const Type Type::MONOMIAL = Type(5);
+const Type Type::NOTHING    = Type(0);
+const Type Type::INTEGER    = Type(1);
+const Type Type::RATIONAL   = Type(2);
+const Type Type::MODULAR    = Type(3);
+const Type Type::VARIABLE   = Type(4);
+const Type Type::MONOMIAL   = Type(5);
 const Type Type::POLYNOMIAL = Type(6);
-const Type Type::POLY_INT = Type(7);
-const Type Type::POLY_RAT = Type(8);
-const Type Type::POLY_MOD = Type(9);
+const Type Type::POLY_INT   = Type(7);
+const Type Type::POLY_RAT   = Type(8);
+const Type Type::POLY_MOD   = Type(9);
 
 const char* Type::message[10] = {
     "NOTHING",

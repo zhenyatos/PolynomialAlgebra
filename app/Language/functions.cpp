@@ -76,6 +76,36 @@ private:
     Node* arg;
 };
 
+class NIntPolyUMin : public NIntPolyVal {
+public:
+    NIntPolyUMin(Node* arg) : arg(arg) {}
+    ~NIntPolyUMin() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        poly = -((NIntPolyVal*)arg)->getPoly();
+    }
+
+private:
+    Node* arg;
+};
+
+class NRatPolyUMin : public NRatPolyVal {
+public:
+    NRatPolyUMin(Node* arg) : arg(arg) {}
+    ~NRatPolyUMin() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        poly = -((NRatPolyVal*)arg)->getPoly();
+    }
+
+private:
+    Node* arg;
+};
+
 class NIntGCD : public NIntVal {
 public:
     NIntGCD(Node* a, Node* b) : a(a), b(b) {}
@@ -114,6 +144,26 @@ private:
     Node* x;
 };
 
+class NRatPolyEvaluate : public NRatVal {
+public:
+    NRatPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
+    ~NRatPolyEvaluate() override = default;
+
+    void evaluate() override {
+        if (!p->isEval())
+            p->evaluate();
+        if (!x->isEval())
+            x->evaluate();
+        Polynomial<Rational> poly = ((NRatPolyVal*)p)->getPoly();
+        value = poly(((NRatVal*)x)->getValue());
+        evaluated = true;
+    }
+
+private:
+    Node* p;
+    Node* x;
+};
+
 Node* abs(Node* x) {
     Type t = x->type;
     if (t == Type::INTEGER) {
@@ -132,6 +182,13 @@ Node* unmin(Node* x) {
         return new NRatUMin(x);
     else if (t == Type::MODULAR)
         return new NModUMin(x);
+    else if (t == Type::POLYNOMIAL) {
+        Type b = ((NPolyVal*)x)->getBase();
+        if (b == Type::INTEGER)
+            return new NIntPolyUMin(x);
+        else if (b == Type::RATIONAL)
+            return new NRatPolyUMin(x);
+    }
     else
         throw std::runtime_error("No function matching -(" + std::string(t) + ")");
 }
@@ -189,8 +246,11 @@ Node* polyop(Node* l, Node* r, const std::string& op) {
 }
 
 Node* peval(Node* p, Node* x) {
-    if (p->type == Type::POLYNOMIAL && x->type == Type::INTEGER)
+    Type base = ((NPolyVal*)p)->getBase();
+    if (base == Type::RATIONAL && x->type == Type::INTEGER)
         return new NIntPolyEvaluate(p, x);
+    else if (base == Type::RATIONAL && x->type == Type::RATIONAL)
+        return new NRatPolyEvaluate(p, x);
     else
         throw std::runtime_error("NAD");
 }
