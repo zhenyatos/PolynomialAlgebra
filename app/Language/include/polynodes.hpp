@@ -6,7 +6,7 @@
 
 class NMonom : public Node {
 public:
-    NMonom() : Node(Type::MONOMIAL), deg(1) {}
+    NMonom() : Node(Type::MONOMIAL, nullptr), deg(1) {}
     virtual ~NMonom() override = default;
 
     void evaluate() override { evaluated = true; }
@@ -30,7 +30,7 @@ private:
 
 class NPolyVal : public Node {
 public:
-    NPolyVal(Type base) : Node(Type::POLYNOMIAL), base(base) {};
+    NPolyVal(Type base) : Node(Type::POLYNOMIAL, nullptr), base(base) {};
     virtual ~NPolyVal() override = default;
 
     Type getBase() const { return base; }

@@ -8,15 +8,47 @@
 #define c_yellow "\u001b[33m"
 #define c_white "\u001b[37m"
 
+class Node;
+
+class TType {
+public:
+    static const TType* NOTHING;
+    static const TType* INTEGER;
+    static const TType* RATIONAL;
+    static const TType* MODULAR;
+
+    static void initialize();
+    static void destroy();
+
+    TType(size_t code) : code(code) {}
+    virtual ~TType() {}
+
+    virtual Node* assign(const std::string& name, Node* val) const = 0;
+    virtual Node* unmin(Node* arg) const;
+    virtual void print(Node* expr, std::ostream& stream) const = 0;
+
+    virtual Node* binop(Node* a, const std::string& op, Node* b) const = 0;
+
+    virtual Node* opInt(Node* a, const std::string& op, Node* b) const;
+    virtual Node* opRat(Node* a, const std::string& op, Node* b) const; 
+    virtual Node* opMod(Node* a, const std::string& op, Node* b) const;
+
+    virtual std::string toStr() const = 0;
+
+protected:
+    size_t code;
+};
+
 class Node {
 public:
-    Node(Type type) : type(type) {}
+    Node(Type type, const TType* t) : type(type), t(t) {}
     virtual ~Node() = default;
 
     virtual void evaluate() = 0;
     bool isEval() { return evaluated; }
 
     const Type type;
+    const TType* t;
 
 protected:
     bool evaluated = false;
@@ -24,7 +56,7 @@ protected:
 
 class NIntVal : public Node {
 public:
-    NIntVal() : Node(Type::INTEGER) {}
+    NIntVal() : Node(Type::INTEGER, TType::INTEGER) {}
     virtual ~NIntVal() override = default;
 
     Integer getValue() const { return value; }
@@ -35,7 +67,7 @@ protected:
 
 class NRatVal : public Node {
 public:
-    NRatVal() : Node(Type::RATIONAL) {}
+    NRatVal() : Node(Type::RATIONAL, TType::RATIONAL) {}
     virtual ~NRatVal() override = default;
 
     Rational getValue() const { return value; }
@@ -46,7 +78,7 @@ protected:
 
 class NModVal : public Node {
 public:
-    NModVal() : Node(Type::MODULAR) {}
+    NModVal() : Node(Type::MODULAR, TType::MODULAR) {}
     virtual ~NModVal() override = default;
 
     Modular getValue() const { return value; }
@@ -57,7 +89,7 @@ protected:
 
 class NVar : public Node {
 public:
-    NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
+    NVar(const std::string& name) : Node(Type::VARIABLE, nullptr), name(name) {}
     virtual ~NVar() override = default;
 
     void evaluate() override { evaluated = true; }

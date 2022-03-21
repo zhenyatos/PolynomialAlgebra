@@ -140,19 +140,14 @@ void NModOp::evaluate() {
 
 
 NPrint::NPrint(Node* value)
-    : Node(Type::NOTHING), expr(value)
+    : Node(Type::NOTHING, TType::NOTHING), expr(value)
 {}
 
 void NPrint::evaluate() {
     if (!expr->isEval())
         expr->evaluate();
-    Type type = expr->type;
-    if (type == Type::INTEGER)
-        std::cout << ((NIntVal*)expr)->getValue() << std::endl;
-    else if (type == Type::RATIONAL)
-        std::cout << ((NRatVal*)expr)->getValue() << std::endl;
-    else if (type == Type::MODULAR)
-        std::cout << ((NModVal*)expr)->getValue() << std::endl;
+    expr->t->print(expr, std::cout);
+    /*
     else if (type == Type::MONOMIAL) {
         NMonom* m = (NMonom*)expr;
         std::cout << "X^" << m->getDeg() << std::endl;
@@ -164,6 +159,7 @@ void NPrint::evaluate() {
         else if (b == Type::RATIONAL)
             std::cout << ((NRatPolyVal*)expr)->getPoly() << std::endl;
     }
+    */
     evaluated = true;
 }
 
