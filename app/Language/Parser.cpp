@@ -53,7 +53,7 @@ Node* Parser::statement() {
             Node* res = statement();
             nodes.push_back(assign(name, res));
         } else {
-            nodes.push_back(var->value());
+            nodes.push_back(varval(l));
         }
         return nodes.back();
     }
@@ -252,11 +252,7 @@ Node* Parser::prime() {
 }
 
 Node* Parser::varval(Node* arg) {
-    if (arg->type == Type::VARIABLE) {
-        nodes.push_back(((NVar*)arg)->value());
-        return nodes.back();
-    }
-    return arg;
+    return arg->t->val(arg);
 }
 
 Node* Parser::AST() {

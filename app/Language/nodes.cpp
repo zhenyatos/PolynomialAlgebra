@@ -3,22 +3,6 @@
 #include "Interpreter.hpp"
 #include <iostream>
 
-Node* NVar::value() {
-    auto check = Interpreter::variableExists(name);
-    if (!check.first)
-        throw std::runtime_error("Reference to the uninitialized variable " + name);
-    if (check.second == Type::INTEGER)
-        return new NIntValVar(name);
-    else if (check.second == Type::RATIONAL)
-        return new NRatValVar(name);
-    else if (check.second == Type::MODULAR)
-        return new NModValVar(name);
-    else if (check.second == Type::POLY_INT)
-        return new NIntPolyValVar(name);
-    else if (check.second == Type::POLY_RAT)
-        return new NRatPolyValVar(name);
-}
-
 NInt::NInt(Integer val) { value = val; }
 
 void NInt::evaluate() {

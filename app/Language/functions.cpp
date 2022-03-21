@@ -90,13 +90,12 @@ private:
 };
 
 Node* abs(Node* x) {
-    Type t = x->type;
-    if (t == Type::INTEGER) {
+    if (x->t->eq(TType::INTEGER))
         return new NIntAbs(x);
-    } else if (t == Type::RATIONAL) {
+    else if (x->t->eq(TType::RATIONAL))
         return new NRatAbs(x);
-    } else
-        throw std::runtime_error("No function matching abs(" + std::string(t) + ")");
+    else
+        throw std::runtime_error("No function matching abs(" + x->t->toStr() + ")");
 }
 
 Node* unmin(Node* x) {
@@ -104,7 +103,7 @@ Node* unmin(Node* x) {
 }
 
 Node* gcd(Node* a, Node* b) {
-    if (a->type != Type::INTEGER || b->type != Type::INTEGER)
+    if (a->t->eq(TType::INTEGER) && b->t->eq(TType::INTEGER))
         throw std::runtime_error("No function matching gcd(" + std::string(a->type) + ", " +
                                 std::string(b->type) + ")");
     return new NIntGCD(a, b);       
@@ -115,9 +114,9 @@ Node* binop(Node* l, Node* r, const std::string& op) {
 }
 
 Node* monomial(Node* l, Node* r) {
-    if (l->type == Type::INTEGER)
+    if (l->t->eq(TType::INTEGER))
         return new NIntPolyMono(l, r);
-    else if (l->type == Type::RATIONAL)
+    else if (l->t->eq(TType::RATIONAL))
         return new NRatPolyMono(l, r);
 }
 
@@ -158,9 +157,8 @@ Node* assign(std::string name, Node* val) {
 }
 
 Node* polymono(Node* c, Node* m) {
-    Type t = c->type;
-    if (t == Type::INTEGER) 
+    if (c->t->eq(TType::INTEGER)) 
         return new NIntPolyMono(c, m);
-    else if (t == Type::RATIONAL)
+    else if (c->t->eq(TType::RATIONAL))
         return new NRatPolyMono(c, m);
 }

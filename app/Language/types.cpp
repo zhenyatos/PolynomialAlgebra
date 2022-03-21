@@ -21,10 +21,16 @@ Node* TType::opMod(Node* a, const std::string& op, Node* b) const {
                                     b->t->toStr() + ")");
 }
 
+Node* TType::binop(Node* a, const std::string& op, Node* b) const {
+    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
+                                b->t->toStr() + ")");
+}
+
 const TType* TType::NOTHING = nullptr;
 const TType* TType::INTEGER = nullptr;
 const TType* TType::RATIONAL = nullptr;
 const TType* TType::MODULAR = nullptr;
+const TType* TType::VARIABLE = nullptr;
 
 class NIntUMin : public NIntVal {
 public:
@@ -108,11 +114,6 @@ public:
 
     Node* assign(const std::string& name, Node* val) const override {
         throw std::runtime_error("Can't assign " + toStr());
-    }
-
-    Node* binop(Node* a, const std::string& op, Node* b) const override {
-        throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
     }
 
     void print(Node* expr, std::ostream& stream) const override { }
@@ -221,11 +222,44 @@ public:
     }
 };
 
+class TVariable : public TType {
+public:
+    TVariable() : TType(4) {}
+    virtual ~TVariable() override {}
+
+    Node* assign(const std::string& name, Node* val) const override {
+        return new NIntAssign(name, val);
+    }
+    
+    virtual Node* val(Node* arg) const override {
+        std::string name = ((NVar*)arg)->getName();
+        auto check = Interpreter::variableExists(name);
+        if (!check.first)
+            throw std::runtime_error("Reference to the uninitialized variable " + name);
+        if (check.second == Type::INTEGER)
+            return new NIntValVar(name);
+        else if (check.second == Type::RATIONAL)
+            return new NRatValVar(name);
+        else if (check.second == Type::MODULAR)
+            return new NModValVar(name);
+    }
+
+    void print(Node* expr, std::ostream& stream) const override { 
+        stream << "VARIABLE" << std::endl;
+    }
+    
+    virtual std::string toStr() const override {
+        return "VARIABLE";
+    }
+};
+
+
 void TType::initialize() {
-    TType::NOTHING = new TNothing();
-    TType::INTEGER = new TInteger();
+    TType::NOTHING  = new TNothing();
+    TType::INTEGER  = new TInteger();
     TType::RATIONAL = new TRational();
-    TType::MODULAR = new TModular();
+    TType::MODULAR  = new TModular();
+    TType::VARIABLE = new TVariable();
 }
 
 void TType::destroy() {
@@ -233,4 +267,5 @@ void TType::destroy() {
     delete TType::INTEGER;
     delete TType::RATIONAL;
     delete TType::MODULAR;
+    delete TType::VARIABLE;
 }

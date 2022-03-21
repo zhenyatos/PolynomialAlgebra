@@ -16,6 +16,7 @@ public:
     static const TType* INTEGER;
     static const TType* RATIONAL;
     static const TType* MODULAR;
+    static const TType* VARIABLE;
 
     static void initialize();
     static void destroy();
@@ -26,8 +27,12 @@ public:
     virtual Node* assign(const std::string& name, Node* val) const = 0;
     virtual Node* unmin(Node* arg) const;
     virtual void print(Node* expr, std::ostream& stream) const = 0;
+    
+    virtual bool eq(const TType* other) const { return code == other->code; }
 
-    virtual Node* binop(Node* a, const std::string& op, Node* b) const = 0;
+    virtual Node* val(Node* arg) const { return arg; }
+
+    virtual Node* binop(Node* a, const std::string& op, Node* b) const;
 
     virtual Node* opInt(Node* a, const std::string& op, Node* b) const;
     virtual Node* opRat(Node* a, const std::string& op, Node* b) const; 
@@ -89,12 +94,11 @@ protected:
 
 class NVar : public Node {
 public:
-    NVar(const std::string& name) : Node(Type::VARIABLE, nullptr), name(name) {}
+    NVar(const std::string& name) : Node(Type::VARIABLE, TType::VARIABLE), name(name) {}
     virtual ~NVar() override = default;
 
     void evaluate() override { evaluated = true; }
 
-    Node* value();
     std::string getName() { return name; }
 
 private:
