@@ -1,4 +1,5 @@
 #include "Interpreter.hpp"
+#include "nodes.hpp"
 
 std::map<std::string, Integer> Interpreter::intVars;
 std::map<std::string, Rational> Interpreter::ratVars;

@@ -152,13 +152,9 @@ Node* peval(Node* p, Node* x) {
 }
 
 Node* assign(std::string name, Node* val) {
-    const TType* t = val->t;
-    return t->assign(name, val);
+    return val->t->assign(name, val);
 }
 
 Node* polymono(Node* c, Node* m) {
-    if (c->t->eq(TType::INTEGER)) 
-        return new NIntPolyMono(c, m);
-    else if (c->t->eq(TType::RATIONAL))
-        return new NRatPolyMono(c, m);
+    return c->t->polymono(c, m);
 }

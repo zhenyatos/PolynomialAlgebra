@@ -38,6 +38,8 @@ public:
     virtual Node* opRat(Node* a, const std::string& op, Node* b) const; 
     virtual Node* opMod(Node* a, const std::string& op, Node* b) const;
 
+    virtual Node* polymono(Node* c, Node* m) const { return nullptr; }
+
     virtual std::string toStr() const = 0;
 
 protected:

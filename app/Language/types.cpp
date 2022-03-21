@@ -152,6 +152,10 @@ public:
     virtual Node* opRat(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
     }
+
+    virtual Node* polymono(Node* c, Node* m) const override {
+        return new NIntPolyMono(c, m);
+    }
     
     virtual std::string toStr() const override {
         return "INTEGER";
@@ -185,6 +189,10 @@ public:
     
     virtual Node* opRat(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
+    }
+
+    virtual Node* polymono(Node* c, Node* m) const override {
+        return new NRatPolyMono(c, m);
     }
 
     virtual std::string toStr() const override {
