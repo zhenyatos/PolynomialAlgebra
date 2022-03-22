@@ -113,13 +113,6 @@ Node* binop(Node* l, Node* r, const std::string& op) {
     return l->t->binop(l, op, r);
 }
 
-Node* monomial(Node* l, Node* r) {
-    if (l->t->eq(TType::INTEGER))
-        return new NIntPolyMono(l, r);
-    else if (l->t->eq(TType::RATIONAL))
-        return new NRatPolyMono(l, r);
-}
-
 Node* polyop(Node* l, Node* r, const std::string& op) {
     Type ltype;
     Type rtype;

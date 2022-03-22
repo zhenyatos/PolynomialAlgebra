@@ -4,6 +4,7 @@
 #include "Rational.hpp"
 #include "Modular.hpp"
 #include "Polynomial.hpp"
+#include "nodes.hpp"
 #include <string>
 #include <map>
 
@@ -19,6 +20,20 @@ public:
     Interpreter() = delete;
 
     static std::pair<bool, Type> variableExists(const std::string& name);
+    
+    static const TType* varEx(const std::string& name);
+
+    static void eraseInt(const std::string& name) {
+        intVars.erase(name);
+    }
+
+    static void eraseRat(const std::string& name) {
+        ratVars.erase(name);
+    }
+
+    static void eraseMod(const std::string& name) {
+        modVars.erase(name);
+    }
     
     static void setIntValue(const std::string& name, Integer value);
 

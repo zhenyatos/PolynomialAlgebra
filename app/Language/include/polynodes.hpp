@@ -6,7 +6,7 @@
 
 class NMonom : public Node {
 public:
-    NMonom() : Node(Type::MONOMIAL, nullptr), deg(1) {}
+    NMonom() : Node(Type::MONOMIAL, TType::MONOMIAL), deg(1) {}
     virtual ~NMonom() override = default;
 
     void evaluate() override { evaluated = true; }

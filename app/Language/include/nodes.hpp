@@ -17,6 +17,7 @@ public:
     static const TType* RATIONAL;
     static const TType* MODULAR;
     static const TType* VARIABLE;
+    static const TType* MONOMIAL;
 
     static void initialize();
     static void destroy();
@@ -25,12 +26,15 @@ public:
     virtual ~TType() {}
 
     virtual Node* assign(const std::string& name, Node* val) const = 0;
+    virtual void erase(const std::string& name) const {}
+
     virtual Node* unmin(Node* arg) const;
     virtual void print(Node* expr, std::ostream& stream) const = 0;
     
     virtual bool eq(const TType* other) const { return code == other->code; }
 
     virtual Node* val(Node* arg) const { return arg; }
+    virtual Node* var(const std::string& name) const;
 
     virtual Node* binop(Node* a, const std::string& op, Node* b) const;
 

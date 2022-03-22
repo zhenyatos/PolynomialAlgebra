@@ -45,7 +45,7 @@ Node* Parser::statement() {
         throw std::runtime_error("Unexpected end of line");
     Node* l = expr();
 
-    if (l->type == Type::VARIABLE) {
+    if (l->t->eq(TType::VARIABLE)) {
         NVar* var = (NVar*)l;
         std::string name = var->getName();
         if (current < tokens.size() && tokens[current].first == TokenName::ASSIGNMENT) {
@@ -141,15 +141,13 @@ Node* Parser::subterm() {
 
         l = varval(l);
         Node* r = varval(factor());
-        Type ltype = l->type;
-        Type rtype = r->type;
-        if (ltype == Type::INTEGER && rtype == Type::INTEGER)
+        if (l->t->eq(TType::INTEGER) && r->t->eq(TType::INTEGER))
             nodes.push_back(new NRat(l, r));
-        else if (ltype == Type::RATIONAL || rtype == Type::RATIONAL)
+        else if (l->t->eq(TType::RATIONAL) || r->t->eq(TType::RATIONAL))
             nodes.push_back(new NRatOp(l, "/", r));
         else
-            throw std::runtime_error("No method matching //(" + std::string(ltype) + ", " +
-                                     std::string(rtype) + ")");
+            throw std::runtime_error("No method matching //(" + l->t->toStr() + ", " +
+                                     r->t->toStr() + ")");
         
         l = nodes.back();
     }

@@ -26,11 +26,16 @@ Node* TType::binop(Node* a, const std::string& op, Node* b) const {
                                 b->t->toStr() + ")");
 }
 
+Node* TType::var(const std::string& name) const { 
+    throw std::runtime_error("Failed to interpret value of type " + toStr() + " as VARIABLE"); 
+}
+
 const TType* TType::NOTHING = nullptr;
 const TType* TType::INTEGER = nullptr;
 const TType* TType::RATIONAL = nullptr;
 const TType* TType::MODULAR = nullptr;
 const TType* TType::VARIABLE = nullptr;
+const TType* TType::MONOMIAL = nullptr;
 
 class NIntUMin : public NIntVal {
 public:
@@ -132,6 +137,10 @@ public:
     Node* assign(const std::string& name, Node* val) const override {
         return new NIntAssign(name, val);
     }
+
+    virtual void erase(const std::string& name) const override {
+        Interpreter::eraseInt(name);
+    }
     
     Node* unmin(Node* arg) const override {
         return new NIntUMin(arg);
@@ -139,6 +148,10 @@ public:
 
     void print(Node* expr, std::ostream& stream) const override { 
         stream << ((NIntVal*)expr)->getValue() << std::endl;
+    }
+
+    virtual Node* var(const std::string& name) const override {
+        return new NIntValVar(name);
     }
 
     Node* binop(Node* a, const std::string& op, Node* b) const override {
@@ -171,6 +184,10 @@ public:
         return new NRatAssign(name, val);
     }
 
+    virtual void erase(const std::string& name) const override {
+        Interpreter::eraseRat(name);
+    }
+
     Node* unmin(Node* arg) const override {
         return new NRatUMin(arg);
     }
@@ -181,6 +198,10 @@ public:
 
     Node* binop(Node* a, const std::string& op, Node* b) const override {
         return b->t->opRat(a, op, b);
+    }
+
+    virtual Node* var(const std::string& name) const override {
+        return new NRatValVar(name);
     }
 
     virtual Node* opInt(Node* a, const std::string& op, Node* b) const override {
@@ -209,6 +230,10 @@ public:
         return new NModAssign(name, val);
     }
 
+    virtual void erase(const std::string& name) const override {
+        Interpreter::eraseMod(name);
+    }
+
     Node* unmin(Node* arg) const override {
         return new NModUMin(arg);
     }
@@ -219,6 +244,10 @@ public:
 
     virtual Node* binop(Node* a, const std::string& op, Node* b) const override {
         return b->t->opMod(a, op, b);
+    }
+
+    virtual Node* var(const std::string& name) const override {
+        return new NModValVar(name);
     }
 
     virtual Node* opMod(Node* a, const std::string& op, Node* b) const override {
@@ -236,20 +265,15 @@ public:
     virtual ~TVariable() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
-        return new NIntAssign(name, val);
+        throw std::runtime_error("Can't assign " + toStr());
     }
     
     virtual Node* val(Node* arg) const override {
         std::string name = ((NVar*)arg)->getName();
-        auto check = Interpreter::variableExists(name);
-        if (!check.first)
+        const TType* type = Interpreter::varEx(name);
+        if (type == nullptr)
             throw std::runtime_error("Reference to the uninitialized variable " + name);
-        if (check.second == Type::INTEGER)
-            return new NIntValVar(name);
-        else if (check.second == Type::RATIONAL)
-            return new NRatValVar(name);
-        else if (check.second == Type::MODULAR)
-            return new NModValVar(name);
+        return type->var(name);
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
@@ -261,6 +285,24 @@ public:
     }
 };
 
+class TMonomial : public TType {
+public:
+    TMonomial() : TType(5) {}
+    virtual ~TMonomial() override {}
+
+    Node* assign(const std::string& name, Node* val) const override {
+        throw std::runtime_error("Can't assign " + toStr());
+    }
+    
+    void print(Node* expr, std::ostream& stream) const override { 
+        NMonom* m = (NMonom*)expr;
+        stream << "X^" << m->getDeg() << std::endl;
+    }
+    
+    virtual std::string toStr() const override {
+        return "MONOMIAL";
+    }
+};
 
 void TType::initialize() {
     TType::NOTHING  = new TNothing();
@@ -268,6 +310,7 @@ void TType::initialize() {
     TType::RATIONAL = new TRational();
     TType::MODULAR  = new TModular();
     TType::VARIABLE = new TVariable();
+    TType::MONOMIAL = new TMonomial();
 }
 
 void TType::destroy() {
@@ -276,4 +319,5 @@ void TType::destroy() {
     delete TType::RATIONAL;
     delete TType::MODULAR;
     delete TType::VARIABLE;
+    delete TType::MONOMIAL;
 }
