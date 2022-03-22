@@ -16,7 +16,7 @@ int main() {
             try {
                 head->evaluate();
             } catch(const std::exception& ex) {
-                std::cout << c_red << ex.what() << c_white << std::endl;
+                std::cout << ex.what() << std::endl;
             }
             p.freeNodes();
         }

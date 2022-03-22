@@ -42,13 +42,8 @@ Modular::Modular(const Modular& other) {
 }
 
 Modular& Modular::operator=(const Modular& other) {
-    if (N == 0) {
-        N = other.N;
-        val = other.val;
-    } else if (N == other.N) 
-        val = other.val;
-    else
-        throw std::invalid_argument(ModularError::DIFF_MODULUS);
+    N = other.N;
+    val = other.val;
     return *this;
 }
 
