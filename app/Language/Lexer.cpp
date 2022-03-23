@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 const std::set<std::string> reservedWords = {
-        "abs", "gcd", "print", "X"
+        "abs", "gcd", "print", "eval", "X"
     };
 
 std::vector<Token> Lexer::parse(std::string line) {
@@ -73,6 +73,12 @@ std::vector<Token> Lexer::parse(std::string line) {
                 result.push_back({TokenName::MUL, line.substr(0, 1)});
             else if (line[0] == '=')
                 result.push_back({TokenName::ASSIGNMENT, line.substr(0, 1)});
+            // operator ^
+            else if (line[0] == '^')
+                result.push_back({TokenName::POWER, line.substr(0, 1)});
+            // operator .
+            else if (line[0] == '.')
+                result.push_back({TokenName::DOT, line.substr(0, 1)});
             // bad
             else
                 throw std::invalid_argument("Unexpected character " + line.substr(0, 1));
@@ -84,7 +90,7 @@ std::vector<Token> Lexer::parse(std::string line) {
     return result;
 }
 
-const char* TokenName::names[15] = {
+const char* TokenName::names[17] = {
     "RESERVED_WORD", 
     "PLUS", 
     "MINUS", 
@@ -97,7 +103,9 @@ const char* TokenName::names[15] = {
     "LPAREN", "RPAREN", 
     "FRACBAR",
     "COMMA", 
-    "END_OF_COMMAND"
+    "END_OF_COMMAND",
+    "POWER",
+    "DOT"
 };
 
 const TokenName TokenName::RESERVED_WORD  = TokenName(0);
@@ -115,3 +123,5 @@ const TokenName TokenName::RPAREN         = TokenName(11);
 const TokenName TokenName::FRACBAR        = TokenName(12); 
 const TokenName TokenName::COMMA          = TokenName(13);
 const TokenName TokenName::END_OF_COMMAND = TokenName(14);
+const TokenName TokenName::POWER          = TokenName(15);
+const TokenName TokenName::DOT            = TokenName(16);

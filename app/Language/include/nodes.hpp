@@ -2,20 +2,18 @@
 #include "Integer.hpp"
 #include "Rational.hpp"
 #include "Modular.hpp"
+#include "Polynomial.hpp"
 #include "Type.hpp"
-#define c_red "\u001b[31m"
-#define c_yellow "\u001b[33m"
-#define c_white "\u001b[37m"
 
 class Node {
 public:
-    Node(Type type) : type(type) {}
+    Node(const Type* t) : t(t) {}
     virtual ~Node() = default;
 
     virtual void evaluate() = 0;
     bool isEval() { return evaluated; }
 
-    const Type type;
+    const Type* t;
 
 protected:
     bool evaluated = false;
@@ -59,9 +57,8 @@ public:
     NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
     virtual ~NVar() override = default;
 
-    void evaluate() override {}
+    void evaluate() override { evaluated = true; }
 
-    Node* value();
     std::string getName() { return name; }
 
 private:

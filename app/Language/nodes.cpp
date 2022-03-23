@@ -1,18 +1,7 @@
 #include "nodes.hpp"
+#include "polynodes.hpp"
 #include "Interpreter.hpp"
 #include <iostream>
-
-Node* NVar::value() {
-    auto check = Interpreter::variableExists(name);
-    if (!check.first)
-        throw std::runtime_error("Reference to the uninitialized variable " + name);
-    if (check.second == Type::INTEGER)
-        return new NIntValVar(name);
-    else if (check.second == Type::RATIONAL)
-        return new NRatValVar(name);
-    else if (check.second == Type::MODULAR)
-        return new NModValVar(name);
-}
 
 NInt::NInt(Integer val) { value = val; }
 
@@ -24,8 +13,6 @@ void NInt::evaluate() {
 NRat::NRat(Node* p, Node* q) : p(p), q(q) {}
 
 void NRat::evaluate() {
-    if (p->type != Type::INTEGER || q->type != Type::INTEGER)
-        throw std::runtime_error("No method matching //(" + std::string(p->type) + ", " + std::string(q->type) + ")");
     if (!p->isEval())
         p->evaluate();
     if (!q->isEval())
@@ -38,8 +25,8 @@ void NRat::evaluate() {
 NMod::NMod(Node* a, Node* N) : a(a), N(N) {}
 
 void NMod::evaluate() {
-    if (a->type != Type::INTEGER || N->type != Type::INTEGER)
-        throw std::runtime_error("No method matching [" + std::string(a->type) + ", " + std::string(N->type) + "]");
+    if (!a->t->eq(Type::INTEGER) || !N->t->eq(Type::INTEGER))
+        throw std::runtime_error("No method matching [" + a->t->toStr() + ", " + N->t->toStr() + "]");
     if (!a->isEval())
         a->evaluate();
     if (!N->isEval())
@@ -85,11 +72,11 @@ void NRatOp::evaluate() {
         right->evaluate();
     Rational a;
     Rational b;
-    if (left->type == Type::INTEGER)
+    if (left->t->eq(Type::INTEGER))
         a = Rational(((NIntVal*)left)->getValue());
     else
         a = ((NRatVal*)left)->getValue();
-    if (right->type == Type::INTEGER)
+    if (right->t->eq(Type::INTEGER))
         b = Rational(((NIntVal*)right)->getValue());
     else
         b = ((NRatVal*)right)->getValue();
@@ -117,9 +104,9 @@ void NModOp::evaluate() {
         right->evaluate();
     Modular a;
     Modular b;
-    if (left->type == Type::MODULAR)
+    if (left->t->eq(Type::MODULAR))
         a = ((NModVal*)left)->getValue();
-    if (right->type == Type::MODULAR)
+    if (right->t->eq(Type::MODULAR))
         b = ((NModVal*)right)->getValue();
     if (op == "+")
         value = a + b;
@@ -141,13 +128,7 @@ NPrint::NPrint(Node* value)
 void NPrint::evaluate() {
     if (!expr->isEval())
         expr->evaluate();
-    Type type = expr->type;
-    if (type == Type::INTEGER)
-        std::cout << ((NIntVal*)expr)->getValue() << std::endl;
-    else if (type == Type::RATIONAL)
-        std::cout << ((NRatVal*)expr)->getValue() << std::endl;
-    else if (type == Type::MODULAR)
-        std::cout << ((NModVal*)expr)->getValue() << std::endl;
+    expr->t->print(expr, std::cout);
     evaluated = true;
 }
 
@@ -213,3 +194,5 @@ void NModValVar::evaluate() {
     value = Interpreter::getModValue(name);
     evaluated = true;
 }
+
+

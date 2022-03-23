@@ -3,6 +3,7 @@
 #include <iostream>
 
 int main() {
+    Type::initialize();
     std::vector<Token> tokens;
     std::string input;
     std::getline(std::cin, input);
@@ -15,11 +16,14 @@ int main() {
             try {
                 head->evaluate();
             } catch(const std::exception& ex) {
-                std::cout << c_red << ex.what() << c_white << std::endl;
+                std::cout << ex.what() << std::endl;
             }
-            p.freeNodes();
         }
+        p.freeNodes();
+        for(int i = 0; i < 1000; i++)
+            ;
         std::getline(std::cin, input);
     }
+    Type::destroy();
     return 0;
 }
