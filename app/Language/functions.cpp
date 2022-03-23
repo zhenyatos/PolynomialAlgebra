@@ -19,46 +19,6 @@ private:
     Node* b;
 };
 
-class NIntPolyEvaluate : public NIntVal {
-public:
-    NIntPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
-    ~NIntPolyEvaluate() override = default;
-
-    void evaluate() override {
-        if (!p->isEval())
-            p->evaluate();
-        if (!x->isEval())
-            x->evaluate();
-        Polynomial<Integer> poly = ((NIntPolyVal*)p)->getPoly();
-        value = poly(((NIntVal*)x)->getValue());
-        evaluated = true;
-    }
-
-private:
-    Node* p;
-    Node* x;
-};
-
-class NRatPolyEvaluate : public NRatVal {
-public:
-    NRatPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
-    ~NRatPolyEvaluate() override = default;
-
-    void evaluate() override {
-        if (!p->isEval())
-            p->evaluate();
-        if (!x->isEval())
-            x->evaluate();
-        Polynomial<Rational> poly = ((NRatPolyVal*)p)->getPoly();
-        value = poly(((NRatVal*)x)->getValue());
-        evaluated = true;
-    }
-
-private:
-    Node* p;
-    Node* x;
-};
-
 Node* abs(Node* x) {
     return x->t->abs(x);
 }
@@ -79,15 +39,7 @@ Node* binop(Node* l, Node* r, const std::string& op) {
 }
 
 Node* peval(Node* p, Node* x) {
-    // Type base = ((NPolyVal*)p)->getBase();
-    // if (base == Type::INTEGER && x->type == Type::INTEGER)
-    //     return new NIntPolyEvaluate(p, x);
-    // else if (base == Type::RATIONAL && x->type == Type::RATIONAL)
-    //     return new NRatPolyEvaluate(p, x);
-    // else
-    //     throw std::runtime_error("No method matching eval(POLYNOMIAL{" + std::string(base) + "}, " + 
-    //                             std::string(x->type) + ")");
-    return nullptr;
+    return p->t->polyEval(p, x);
 }
 
 Node* assign(std::string name, Node* val) {

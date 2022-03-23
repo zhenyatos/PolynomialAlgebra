@@ -43,6 +43,7 @@ public:
     virtual Node* polyAssign(const std::string& name, Node* val) const;
     virtual Node* polyVar(const std::string& name) const { return nullptr; }
     virtual Node* polyMono(Node* c, Node* m) const { return nullptr; }
+    virtual Node* polyEval(Node* p, Node* x) const { return nullptr; }
 
     virtual std::string toStr() const = 0;
 

@@ -145,6 +145,69 @@ private:
     Node* arg;
 };
 
+class NIntPolyEvaluate : public NIntVal {
+public:
+    NIntPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
+    ~NIntPolyEvaluate() override = default;
+
+    void evaluate() override {
+        if (!p->isEval())
+            p->evaluate();
+        if (!x->isEval())
+            x->evaluate();
+        Polynomial<Integer> poly = ((NIntPolyVal*)p)->getPoly();
+        value = poly(((NIntVal*)x)->getValue());
+        evaluated = true;
+    }
+
+private:
+    Node* p;
+    Node* x;
+};
+
+class NRatPolyEvaluate : public NRatVal {
+public:
+    NRatPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
+    ~NRatPolyEvaluate() override = default;
+
+    void evaluate() override {
+        if (!p->isEval())
+            p->evaluate();
+        if (!x->isEval())
+            x->evaluate();
+        Polynomial<Rational> poly = ((NRatPolyVal*)p)->getPoly();
+        value = poly(((NRatVal*)x)->getValue());
+        evaluated = true;
+    }
+
+private:
+    Node* p;
+    Node* x;
+};
+
+class NModPolyEvaluate : public NModVal {
+public:
+    NModPolyEvaluate(Node* p, Node* x) : p(p), x(x) {}
+    ~NModPolyEvaluate() override = default;
+
+    void evaluate() override {
+        if (!p->isEval())
+            p->evaluate();
+        if (!x->isEval())
+            x->evaluate();
+        Polynomial<Modular> poly = ((NModPolyVal*)p)->getPoly();
+        value = poly(((NModVal*)x)->getValue());
+        evaluated = true;
+    }
+
+private:
+    Node* p;
+    Node* x;
+};
+
+
+
+
 class TNothing : public Type {
 public:
     TNothing() : Type(0) {}
@@ -218,6 +281,10 @@ public:
     virtual Node* polyMono(Node* c, Node* m) const override {
         return new NIntPolyMono(c, m);
     }
+
+    virtual Node* polyEval(Node* p, Node* x) const override {
+        return new NIntPolyEvaluate(p, x);
+    }
     
     virtual std::string toStr() const override {
         return "INTEGER";
@@ -281,6 +348,10 @@ public:
         return new NRatPolyMono(c, m);
     }
 
+    virtual Node* polyEval(Node* p, Node* x) const override {
+        return new NRatPolyEvaluate(p, x);
+    }
+
     virtual std::string toStr() const override {
         return "RATIONAL";
     }
@@ -333,6 +404,10 @@ public:
 
     virtual Node* polyMono(Node* c, Node* m) const override {
         return new NModPolyMono(c, m);
+    }
+
+    virtual Node* polyEval(Node* p, Node* x) const override {
+        return new NModPolyEvaluate(p, x);
     }
 
     virtual std::string toStr() const override {
@@ -421,6 +496,10 @@ public:
 
     virtual Node* var(const std::string& name) const override {
         return base->polyVar(name);
+    }
+
+    virtual Node* polyEval(Node* p, Node* x) const override {
+        return base->polyEval(p, x);
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
