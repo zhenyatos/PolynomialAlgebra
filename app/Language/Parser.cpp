@@ -43,6 +43,7 @@ Node* Parser::sentence() {
 Node* Parser::statement() {
     if (end())
         throw std::runtime_error("Unexpected end of line");
+    
     Node* l = expr();
 
     if (l->t->eq(TType::VARIABLE)) {
@@ -95,11 +96,11 @@ Node* Parser::term() {
             eat(TokenName::MUL);
         else
             eat(TokenName::DIV);
-        
+
         l = varval(l);
         Node* r = varval(concat());
-
         nodes.push_back(binop(l, r, token.second));
+        
         l = nodes.back();
     }
 
@@ -167,20 +168,17 @@ Node* Parser::factor() {
     Node* p = prime();
     if (current >= tokens.size())
         return p;
-    Type ltype, rtype;
     if (tokens[current].first == TokenName::POWER) {
         eat(TokenName::POWER);
         p = varval(p);
         Node* n = varval(factor());
-        ltype = p->type;
-        rtype = n->type;
-        if (ltype == Type::MONOMIAL && rtype == Type::INTEGER) {
+        if (p->t->eq(TType::MONOMIAL) && n->t->eq(TType::INTEGER)) {
             nodes.push_back(new NPowMonom(n));
             return nodes.back();
         } 
         else
-            throw std::runtime_error("No method matching ^(" + std::string(ltype) + ", " + 
-                                        std::string(rtype) + ")");
+            throw std::runtime_error("No method matching ^(" + p->t->toStr() + ", " + 
+                                        n->t->toStr() + ")");
     }
 
     return p;
@@ -248,7 +246,10 @@ Node* Parser::prime() {
 }
 
 Node* Parser::varval(Node* arg) {
-    return arg->t->val(arg);
+    Node* res = arg->t->val(arg);
+    if (res != arg)
+        nodes.push_back(res);
+    return res;
 }
 
 Node* Parser::AST() {
@@ -256,7 +257,7 @@ Node* Parser::AST() {
     try {
         res = sentence();
     } catch (const std::exception& ex) {
-        std::cout << c_yellow << ex.what() << c_white << std::endl;
+        std::cout << ex.what() << std::endl;
         freeNodes();
         return nullptr;
     }
@@ -268,27 +269,3 @@ void Parser::freeNodes() {
         delete node;
     nodes.clear();
 }
-
-const Type Type::NOTHING    = Type(0);
-const Type Type::INTEGER    = Type(1);
-const Type Type::RATIONAL   = Type(2);
-const Type Type::MODULAR    = Type(3);
-const Type Type::VARIABLE   = Type(4);
-const Type Type::MONOMIAL   = Type(5);
-const Type Type::POLYNOMIAL = Type(6);
-const Type Type::POLY_INT   = Type(7);
-const Type Type::POLY_RAT   = Type(8);
-const Type Type::POLY_MOD   = Type(9);
-
-const char* Type::message[10] = {
-    "NOTHING",
-    "INTEGER",
-    "RATIONAL",
-    "MODULAR",
-    "VARIABLE",
-    "MONOMIAL",
-    "POLYNOMIAL",
-    "POLYNOMIAL(INTEGER)",
-    "POLYNOMIAL(RATIONAL)",
-    "POLYNOMIAL(MODULAR)"
-};

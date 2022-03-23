@@ -1,6 +1,5 @@
 #pragma once
 #include "Integer.hpp"
-#include "Type.hpp"
 #include "Rational.hpp"
 #include "Modular.hpp"
 #include "Polynomial.hpp"

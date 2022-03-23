@@ -1,6 +1,5 @@
 #pragma once
 #include "Lexer.hpp"
-#include "Type.hpp"
 #include "nodes.hpp"
 #include <iostream>
 

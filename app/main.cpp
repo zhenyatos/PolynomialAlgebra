@@ -18,8 +18,10 @@ int main() {
             } catch(const std::exception& ex) {
                 std::cout << ex.what() << std::endl;
             }
-            p.freeNodes();
         }
+        p.freeNodes();
+        for(int i = 0; i < 1000; i++)
+            ;
         std::getline(std::cin, input);
     }
     TType::destroy();

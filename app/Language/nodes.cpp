@@ -13,8 +13,8 @@ void NInt::evaluate() {
 NRat::NRat(Node* p, Node* q) : p(p), q(q) {}
 
 void NRat::evaluate() {
-    if (p->type != Type::INTEGER || q->type != Type::INTEGER)
-        throw std::runtime_error("No method matching //(" + std::string(p->type) + ", " + std::string(q->type) + ")");
+    if (p->t->eq(TType::INTEGER) || q->t->eq(TType::INTEGER))
+        throw std::runtime_error("No method matching //(" + p->t->toStr() + ", " +  q->t->toStr() + ")");
     if (!p->isEval())
         p->evaluate();
     if (!q->isEval())
@@ -27,8 +27,8 @@ void NRat::evaluate() {
 NMod::NMod(Node* a, Node* N) : a(a), N(N) {}
 
 void NMod::evaluate() {
-    if (a->type != Type::INTEGER || N->type != Type::INTEGER)
-        throw std::runtime_error("No method matching [" + std::string(a->type) + ", " + std::string(N->type) + "]");
+    if (a->t->eq(TType::INTEGER) || N->t->eq(TType::INTEGER))
+        throw std::runtime_error("No method matching [" + a->t->toStr() + ", " + N->t->toStr() + "]");
     if (!a->isEval())
         a->evaluate();
     if (!N->isEval())
@@ -74,11 +74,11 @@ void NRatOp::evaluate() {
         right->evaluate();
     Rational a;
     Rational b;
-    if (left->type == Type::INTEGER)
+    if (left->t->eq(TType::INTEGER))
         a = Rational(((NIntVal*)left)->getValue());
     else
         a = ((NRatVal*)left)->getValue();
-    if (right->type == Type::INTEGER)
+    if (right->t->eq(TType::INTEGER))
         b = Rational(((NIntVal*)right)->getValue());
     else
         b = ((NRatVal*)right)->getValue();
@@ -106,9 +106,9 @@ void NModOp::evaluate() {
         right->evaluate();
     Modular a;
     Modular b;
-    if (left->type == Type::MODULAR)
+    if (left->t->eq(TType::MODULAR))
         a = ((NModVal*)left)->getValue();
-    if (right->type == Type::MODULAR)
+    if (right->t->eq(TType::MODULAR))
         b = ((NModVal*)right)->getValue();
     if (op == "+")
         value = a + b;
@@ -124,7 +124,7 @@ void NModOp::evaluate() {
 
 
 NPrint::NPrint(Node* value)
-    : Node(Type::NOTHING, TType::NOTHING), expr(value)
+    : Node(TType::NOTHING), expr(value)
 {}
 
 void NPrint::evaluate() {

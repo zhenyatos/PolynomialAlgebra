@@ -380,6 +380,10 @@ public:
         return new NRatPolyOp(a, op, b);
     }
 
+    virtual Node* opMod(Node* a, const std::string& op, Node* b) const override {
+        return new NModPolyOp(a, op, b);
+    }
+
     virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
         return base->opPoly(a, op, b);
     }

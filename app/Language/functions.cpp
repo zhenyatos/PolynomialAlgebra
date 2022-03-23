@@ -104,8 +104,8 @@ Node* unmin(Node* x) {
 
 Node* gcd(Node* a, Node* b) {
     if (a->t->eq(TType::INTEGER) && b->t->eq(TType::INTEGER))
-        throw std::runtime_error("No function matching gcd(" + std::string(a->type) + ", " +
-                                std::string(b->type) + ")");
+        throw std::runtime_error("No function matching gcd(" + a->t->toStr() + ", " +
+                                b->t->toStr() + ")");
     return new NIntGCD(a, b);       
 }
 

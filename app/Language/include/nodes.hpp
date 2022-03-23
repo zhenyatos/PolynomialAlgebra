@@ -3,13 +3,8 @@
 #include "Rational.hpp"
 #include "Modular.hpp"
 #include "Polynomial.hpp"
-#include "Type.hpp"
-#define c_red "\u001b[31m"
-#define c_yellow "\u001b[33m"
-#define c_white "\u001b[37m"
 
 class Node;
-
 
 class TType {
 public:
@@ -59,13 +54,12 @@ protected:
 
 class Node {
 public:
-    Node(Type type, const TType* t) : type(type), t(t) {}
+    Node(const TType* t) : t(t) {}
     virtual ~Node() = default;
 
     virtual void evaluate() = 0;
     bool isEval() { return evaluated; }
 
-    const Type type;
     const TType* t;
 
 protected:
@@ -74,7 +68,7 @@ protected:
 
 class NIntVal : public Node {
 public:
-    NIntVal() : Node(Type::INTEGER, TType::INTEGER) {}
+    NIntVal() : Node(TType::INTEGER) {}
     virtual ~NIntVal() override = default;
 
     Integer getValue() const { return value; }
@@ -85,7 +79,7 @@ protected:
 
 class NRatVal : public Node {
 public:
-    NRatVal() : Node(Type::RATIONAL, TType::RATIONAL) {}
+    NRatVal() : Node(TType::RATIONAL) {}
     virtual ~NRatVal() override = default;
 
     Rational getValue() const { return value; }
@@ -96,7 +90,7 @@ protected:
 
 class NModVal : public Node {
 public:
-    NModVal() : Node(Type::MODULAR, TType::MODULAR) {}
+    NModVal() : Node(TType::MODULAR) {}
     virtual ~NModVal() override = default;
 
     Modular getValue() const { return value; }
@@ -107,7 +101,7 @@ protected:
 
 class NVar : public Node {
 public:
-    NVar(const std::string& name) : Node(Type::VARIABLE, TType::VARIABLE), name(name) {}
+    NVar(const std::string& name) : Node(TType::VARIABLE), name(name) {}
     virtual ~NVar() override = default;
 
     void evaluate() override { evaluated = true; }

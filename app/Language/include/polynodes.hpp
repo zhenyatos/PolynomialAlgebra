@@ -2,11 +2,10 @@
 #include "nodes.hpp"
 #include "Integer.hpp"
 #include "Rational.hpp"
-#include "Type.hpp"
 
 class NMonom : public Node {
 public:
-    NMonom() : Node(Type::MONOMIAL, TType::MONOMIAL), deg(1) {}
+    NMonom() : Node(TType::MONOMIAL), deg(1) {}
     virtual ~NMonom() override = default;
 
     void evaluate() override { evaluated = true; }
@@ -30,7 +29,7 @@ private:
 
 class NIntPolyVal : public Node {
 public: 
-    NIntPolyVal() : Node(Type::POLY_INT, TType::POLY_INT) {}
+    NIntPolyVal() : Node(TType::POLY_INT) {}
     virtual ~NIntPolyVal() override = default;
 
     Polynomial<Integer> getPoly() const { return poly; }
@@ -89,7 +88,7 @@ private:
 
 class NRatPolyVal : public Node {
 public: 
-    NRatPolyVal() : Node(Type::POLY_RAT, TType::POLY_RAT) {}
+    NRatPolyVal() : Node(TType::POLY_RAT) {}
     virtual ~NRatPolyVal() override = default;
 
     Polynomial<Rational> getPoly() const { return poly; }
@@ -148,7 +147,7 @@ private:
 
 class NModPolyVal : public Node {
 public: 
-    NModPolyVal() : Node(Type::POLY_MOD, TType::POLY_MOD) {}
+    NModPolyVal() : Node(TType::POLY_MOD) {}
     virtual ~NModPolyVal() override = default;
 
     Polynomial<Modular> getPoly() const { return poly; }
