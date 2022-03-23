@@ -10,11 +10,13 @@
 
 class Interpreter {
 private:
+    static std::map<std::string, const TType*> vars;
     static std::map<std::string, Integer> intVars;
     static std::map<std::string, Rational> ratVars;
     static std::map<std::string, Modular> modVars;
     static std::map<std::string, Polynomial<Integer>> intPolyVars;
     static std::map<std::string, Polynomial<Rational>> ratPolyVars;
+    static std::map<std::string, Polynomial<Modular>> modPolyVars;
 
 public:
     Interpreter() = delete;
@@ -40,6 +42,10 @@ public:
     static void erasePolyRat(const std::string& name) {
         ratPolyVars.erase(name);
     }
+
+    static void erasePolyMod(const std::string& name) {
+        modPolyVars.erase(name);
+    }
     
     static void setIntValue(const std::string& name, Integer value);
 
@@ -50,6 +56,8 @@ public:
     static void setPolyIntValue(const std::string& name, const Polynomial<Integer>& value);
 
     static void setPolyRatValue(const std::string& name, const Polynomial<Rational>& value);
+    
+    static void setPolyModValue(const std::string& name, const Polynomial<Modular>& value);
 
     static Integer getIntValue(const std::string& name);
 
@@ -60,4 +68,6 @@ public:
     static Polynomial<Integer> getPolyIntValue(const std::string& name);
 
     static Polynomial<Rational> getPolyRatValue(const std::string& name);
+
+    static Polynomial<Modular> getPolyModValue(const std::string& name);
 };

@@ -1,12 +1,12 @@
 #include "Interpreter.hpp"
 
+std::map<std::string, const TType*> Interpreter::vars;
 std::map<std::string, Integer> Interpreter::intVars;
 std::map<std::string, Rational> Interpreter::ratVars;
 std::map<std::string, Modular> Interpreter::modVars;
 std::map<std::string, Polynomial<Integer>> Interpreter::intPolyVars;
 std::map<std::string, Polynomial<Rational>> Interpreter::ratPolyVars;
-
-std::map<std::string, const TType*> vars;
+std::map<std::string, Polynomial<Modular>> Interpreter::modPolyVars;
 
 const TType* Interpreter::variableExist(const std::string& name) {
     if (vars.find(name) != vars.end())
@@ -55,6 +55,14 @@ void Interpreter::setPolyRatValue(const std::string& name, const Polynomial<Rati
     vars[name] = TType::POLY_RAT;   
 }
 
+void Interpreter::setPolyModValue(const std::string& name, const Polynomial<Modular>& value) {
+    const TType* type = variableExist(name);
+    if (type != nullptr && !type->eq(TType::POLY_MOD))
+        type->erase(name);
+    modPolyVars[name] = value; 
+    vars[name] = TType::POLY_MOD;   
+}
+
 Integer Interpreter::getIntValue(const std::string& name) {
     const TType* check = variableExist(name);
     if (check == nullptr)
@@ -98,4 +106,13 @@ Polynomial<Rational> Interpreter::getPolyRatValue(const std::string& name) {
     else if (!check->eq(TType::POLY_RAT))
         throw std::runtime_error("Variable " + name + " is not " + TType::POLY_RAT->toStr());
     return ratPolyVars[name];
+}
+
+Polynomial<Modular> Interpreter::getPolyModValue(const std::string& name) {
+    const TType* check = variableExist(name);
+    if (check == nullptr)
+        throw std::runtime_error("Reference to the uninitialized variable " + name);
+    else if (!check->eq(TType::POLY_MOD))
+        throw std::runtime_error("Variable " + name + " is not " + TType::POLY_MOD->toStr());
+    return modPolyVars[name];
 }

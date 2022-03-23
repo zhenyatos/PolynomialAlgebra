@@ -5,6 +5,7 @@
 class Modular {
 public:
     Modular();
+    Modular(int a);
     Modular(Integer a, Integer N);
     Modular(const Modular& other);    
     Modular& operator=(const Modular& other);
@@ -17,11 +18,14 @@ public:
     Modular operator-() const;
     Modular inv() const;
 
-    bool operator==(const Modular& other);
-    bool operator!=(const Modular& other);
+    bool operator==(const Modular& other) const;
+    bool operator!=(const Modular& other) const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Modular& modular) {
-        stream << "[" << modular.val << ", " << modular.N << "]";
+        if (modular == Modular(0))
+            stream << 0;
+        else
+            stream << "[" << modular.val << ", " << modular.N << "]";
         return stream;
     }
 

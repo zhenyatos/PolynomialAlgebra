@@ -25,6 +25,12 @@ Modular::Modular()
     : N(0), val(0)
 {}
 
+Modular::Modular(int a)
+    : N(a)
+{
+    val = 0;
+}
+
 Modular::Modular(Integer a, Integer N = 0) 
     : N(N)
 {
@@ -129,12 +135,16 @@ Modular Modular::inv() const {
     return Modular(b2, N);
 }
 
-bool Modular::operator==(const Modular& other) {
-    return val == other.val;
+bool Modular::operator==(const Modular& other) const {
+    if (N == 0)
+        return other.val == 0;
+    if (other.N == 0)
+        return val == 0;
+    return (N == other.N) && (val == other.val);
 }
 
-bool Modular::operator!=(const Modular& other) {
-    return val != other.val;
+bool Modular::operator!=(const Modular& other) const {
+    return !((*this) == other);
 }
 
 Modular operator+(Modular a, const Modular& b) {

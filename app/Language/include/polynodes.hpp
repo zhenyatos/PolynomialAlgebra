@@ -145,3 +145,62 @@ public:
 private:
     std::string name;
 };
+
+class NModPolyVal : public Node {
+public: 
+    NModPolyVal() : Node(Type::POLY_MOD, TType::POLY_MOD) {}
+    virtual ~NModPolyVal() override = default;
+
+    Polynomial<Modular> getPoly() const { return poly; }
+
+protected:
+    Polynomial<Modular> poly;
+};
+
+class NModPolyMono : public NModPolyVal {
+public: 
+    NModPolyMono(Node* c, Node* m);
+    ~NModPolyMono() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* c;
+    Node* m;
+};
+
+class NModPolyOp : public NModPolyVal {
+public:
+    NModPolyOp(Node* left, const std::string& op, Node* right);
+    ~NModPolyOp() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* left;
+    Node* right;
+    std::string op;
+};
+
+class NModPolyAssign : public NModPolyVal {
+public:
+    NModPolyAssign(const std::string& initializer, Node* value);
+    ~NModPolyAssign() override = default;
+
+    void evaluate() override;
+
+private:
+    Node* expr;
+    std::string initializer;
+};
+
+class NModPolyValVar : public NModPolyVal {
+public:
+    NModPolyValVar(const std::string& name);
+    ~NModPolyValVar() override = default;
+
+    void evaluate() override;
+
+private:
+    std::string name;
+};

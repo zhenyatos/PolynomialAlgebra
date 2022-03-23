@@ -264,6 +264,10 @@ public:
         return new NModAssign(name, val);
     }
 
+    Node* polyAssign(const std::string& name, Node* val) const override {
+        return new NModPolyAssign(name, val);
+    }
+
     virtual void erase(const std::string& name) const override {
         Interpreter::eraseMod(name);
     }
@@ -284,8 +288,20 @@ public:
         return new NModValVar(name);
     }
 
+    virtual Node* polyVar(const std::string& name) const override {
+        return new NModPolyValVar(name);
+    }
+
     virtual Node* opMod(Node* a, const std::string& op, Node* b) const override {
         return new NModOp(a, op, b);
+    }
+
+    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
+        return new NModPolyOp(a, op, b);
+    }
+
+    virtual Node* polyMono(Node* c, Node* m) const override {
+        return new NModPolyMono(c, m);
     }
 
     virtual std::string toStr() const override {
@@ -378,6 +394,8 @@ public:
             stream << ((NIntPolyVal*)expr)->getPoly() << std::endl;
         else if (b->eq(TType::RATIONAL))
             stream << ((NRatPolyVal*)expr)->getPoly() << std::endl;
+        else if (b->eq(TType::MODULAR))
+            stream << ((NModPolyVal*)expr)->getPoly() << std::endl;
     }
     
     virtual std::string toStr() const override {

@@ -38,11 +38,11 @@ void NIntPolyOp::evaluate() {
         right->evaluate();
     Polynomial<Integer> a;
     Polynomial<Integer> b;
-    if (left->type == Type::INTEGER)
+    if (left->t->eq(TType::INTEGER))
         a = Polynomial<Integer>({((NIntVal*)left)->getValue()});
     else
         a = ((NIntPolyVal*)left)->getPoly();
-    if (right->type == Type::INTEGER)
+    if (right->t->eq(TType::INTEGER))
         b = Polynomial<Integer>({((NIntVal*)right)->getValue()});
     else
         b = ((NIntPolyVal*)right)->getPoly();
@@ -104,11 +104,11 @@ void NRatPolyOp::evaluate() {
         right->evaluate();
     Polynomial<Rational> a;
     Polynomial<Rational> b;
-    if (left->type == Type::RATIONAL)
+    if (left->t->eq(TType::RATIONAL))
         a = Polynomial<Rational>({((NRatVal*)left)->getValue()});
     else
         a = ((NRatPolyVal*)left)->getPoly();
-    if (right->type == Type::RATIONAL)
+    if (right->t->eq(TType::RATIONAL))
         b = Polynomial<Rational>({((NRatVal*)right)->getValue()});
     else
         b = ((NRatPolyVal*)right)->getPoly();
@@ -146,3 +146,70 @@ void NRatPolyValVar::evaluate() {
     evaluated = true;
 }
 
+
+NModPolyMono::NModPolyMono(Node* c, Node* m) : c(c), m(m) {}
+
+void NModPolyMono::evaluate() {
+    if (!c->isEval())
+        c->evaluate();
+    if (!m->isEval())
+        m->evaluate();
+    Modular coeff = ((NModVal*)c)->getValue();
+    Integer deg = ((NMonom*)m)->getDeg();
+    poly = Polynomial<Modular>::Monomial(coeff, int(deg));
+    evaluated = true;
+}
+
+
+NModPolyOp::NModPolyOp(Node* left, const std::string& op, Node* right) 
+    : left(left), op(op), right(right)
+{}
+
+void NModPolyOp::evaluate() {
+    if (!left->isEval())
+        left->evaluate();
+    if (!right->isEval())
+        right->evaluate();
+    Polynomial<Modular> a;
+    Polynomial<Modular> b;
+    if (left->t->eq(TType::MODULAR))
+        a = Polynomial<Modular>({((NModVal*)left)->getValue()});
+    else
+        a = ((NModPolyVal*)left)->getPoly();
+    if (right->t->eq(TType::MODULAR))
+        b = Polynomial<Modular>({((NModVal*)right)->getValue()});
+    else
+        b = ((NModPolyVal*)right)->getPoly();
+
+    if (op == "+")
+        poly = a + b;
+    else if (op == "-")
+        poly = a - b;
+    else if (op == "*")
+        poly = a * b;
+    else if (op == "/")
+        poly = a.div(b);
+
+    evaluated = true;
+}
+
+
+NModPolyAssign::NModPolyAssign(const std::string& initializer, Node* value)
+    : initializer(initializer), expr(value)
+{}
+
+void NModPolyAssign::evaluate() {
+    if (!expr->isEval())
+        expr->evaluate();
+    poly = ((NModPolyVal*)expr)->getPoly();
+    Interpreter::setPolyModValue(initializer, poly);
+    evaluated = true;
+}
+
+
+NModPolyValVar::NModPolyValVar(const std::string& name) : name(name) {}
+
+void NModPolyValVar::evaluate() {
+    poly = Interpreter::getPolyModValue(name);
+    evaluated = true;
+}
