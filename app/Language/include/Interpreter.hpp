@@ -9,7 +9,7 @@
 
 class Interpreter {
 private:
-    static std::map<std::string, const TType*> vars;
+    static std::map<std::string, const Type*> vars;
     static std::map<std::string, Integer> intVars;
     static std::map<std::string, Rational> ratVars;
     static std::map<std::string, Modular> modVars;
@@ -20,7 +20,7 @@ private:
 public:
     Interpreter() = delete;
     
-    static const TType* variableExist(const std::string& name);
+    static const Type* variableExist(const std::string& name);
 
     static void eraseInt(const std::string& name) {
         intVars.erase(name);

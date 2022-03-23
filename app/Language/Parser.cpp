@@ -46,7 +46,7 @@ Node* Parser::statement() {
     
     Node* l = expr();
 
-    if (l->t->eq(TType::VARIABLE)) {
+    if (l->t->eq(Type::VARIABLE)) {
         NVar* var = (NVar*)l;
         std::string name = var->getName();
         if (current < tokens.size() && tokens[current].first == TokenName::ASSIGNMENT) {
@@ -119,7 +119,7 @@ Node* Parser::concat() {
         eat(TokenName::DOT);
         l = varval(l);
         Node* r = varval(factor());
-        if (r->t->eq(TType::MONOMIAL)) {
+        if (r->t->eq(Type::MONOMIAL)) {
             nodes.push_back(polymono(l, r));
             return nodes.back();
         }
@@ -141,9 +141,9 @@ Node* Parser::subterm() {
 
         l = varval(l);
         Node* r = varval(factor());
-        if (l->t->eq(TType::INTEGER) && r->t->eq(TType::INTEGER))
+        if (l->t->eq(Type::INTEGER) && r->t->eq(Type::INTEGER))
             nodes.push_back(new NRat(l, r));
-        else if (l->t->eq(TType::RATIONAL) || r->t->eq(TType::RATIONAL))
+        else if (l->t->eq(Type::RATIONAL) || r->t->eq(Type::RATIONAL))
             nodes.push_back(new NRatOp(l, "/", r));
         else
             throw std::runtime_error("No method matching //(" + l->t->toStr() + ", " +
@@ -172,7 +172,7 @@ Node* Parser::factor() {
         eat(TokenName::POWER);
         p = varval(p);
         Node* n = varval(factor());
-        if (p->t->eq(TType::MONOMIAL) && n->t->eq(TType::INTEGER)) {
+        if (p->t->eq(Type::MONOMIAL) && n->t->eq(Type::INTEGER)) {
             nodes.push_back(new NPowMonom(n));
             return nodes.back();
         } 

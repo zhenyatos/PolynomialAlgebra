@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main() {
-    TType::initialize();
+    Type::initialize();
     std::vector<Token> tokens;
     std::string input;
     std::getline(std::cin, input);
@@ -24,6 +24,6 @@ int main() {
             ;
         std::getline(std::cin, input);
     }
-    TType::destroy();
+    Type::destroy();
     return 0;
 }

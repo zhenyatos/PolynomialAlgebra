@@ -90,9 +90,9 @@ private:
 };
 
 Node* abs(Node* x) {
-    if (x->t->eq(TType::INTEGER))
+    if (x->t->eq(Type::INTEGER))
         return new NIntAbs(x);
-    else if (x->t->eq(TType::RATIONAL))
+    else if (x->t->eq(Type::RATIONAL))
         return new NRatAbs(x);
     else
         throw std::runtime_error("No function matching abs(" + x->t->toStr() + ")");
@@ -103,7 +103,7 @@ Node* unmin(Node* x) {
 }
 
 Node* gcd(Node* a, Node* b) {
-    if (a->t->eq(TType::INTEGER) && b->t->eq(TType::INTEGER))
+    if (a->t->eq(Type::INTEGER) && b->t->eq(Type::INTEGER))
         throw std::runtime_error("No function matching gcd(" + a->t->toStr() + ", " +
                                 b->t->toStr() + ")");
     return new NIntGCD(a, b);       

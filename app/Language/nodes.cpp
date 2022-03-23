@@ -13,7 +13,7 @@ void NInt::evaluate() {
 NRat::NRat(Node* p, Node* q) : p(p), q(q) {}
 
 void NRat::evaluate() {
-    if (p->t->eq(TType::INTEGER) || q->t->eq(TType::INTEGER))
+    if (p->t->eq(Type::INTEGER) || q->t->eq(Type::INTEGER))
         throw std::runtime_error("No method matching //(" + p->t->toStr() + ", " +  q->t->toStr() + ")");
     if (!p->isEval())
         p->evaluate();
@@ -27,7 +27,7 @@ void NRat::evaluate() {
 NMod::NMod(Node* a, Node* N) : a(a), N(N) {}
 
 void NMod::evaluate() {
-    if (!a->t->eq(TType::INTEGER) || !N->t->eq(TType::INTEGER))
+    if (!a->t->eq(Type::INTEGER) || !N->t->eq(Type::INTEGER))
         throw std::runtime_error("No method matching [" + a->t->toStr() + ", " + N->t->toStr() + "]");
     if (!a->isEval())
         a->evaluate();
@@ -74,11 +74,11 @@ void NRatOp::evaluate() {
         right->evaluate();
     Rational a;
     Rational b;
-    if (left->t->eq(TType::INTEGER))
+    if (left->t->eq(Type::INTEGER))
         a = Rational(((NIntVal*)left)->getValue());
     else
         a = ((NRatVal*)left)->getValue();
-    if (right->t->eq(TType::INTEGER))
+    if (right->t->eq(Type::INTEGER))
         b = Rational(((NIntVal*)right)->getValue());
     else
         b = ((NRatVal*)right)->getValue();
@@ -106,9 +106,9 @@ void NModOp::evaluate() {
         right->evaluate();
     Modular a;
     Modular b;
-    if (left->t->eq(TType::MODULAR))
+    if (left->t->eq(Type::MODULAR))
         a = ((NModVal*)left)->getValue();
-    if (right->t->eq(TType::MODULAR))
+    if (right->t->eq(Type::MODULAR))
         b = ((NModVal*)right)->getValue();
     if (op == "+")
         value = a + b;
@@ -124,7 +124,7 @@ void NModOp::evaluate() {
 
 
 NPrint::NPrint(Node* value)
-    : Node(TType::NOTHING), expr(value)
+    : Node(Type::NOTHING), expr(value)
 {}
 
 void NPrint::evaluate() {

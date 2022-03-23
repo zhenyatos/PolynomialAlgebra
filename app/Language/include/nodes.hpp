@@ -3,64 +3,17 @@
 #include "Rational.hpp"
 #include "Modular.hpp"
 #include "Polynomial.hpp"
-
-class Node;
-
-class TType {
-public:
-    static const TType* NOTHING;
-    static const TType* INTEGER;
-    static const TType* RATIONAL;
-    static const TType* MODULAR;
-    static const TType* VARIABLE;
-    static const TType* MONOMIAL;
-    static const TType* POLY_INT;
-    static const TType* POLY_RAT;
-    static const TType* POLY_MOD;
-
-    static void initialize();
-    static void destroy();
-
-    TType(size_t code) : code(code) {}
-    virtual ~TType() {}
-
-    virtual Node* assign(const std::string& name, Node* val) const = 0;
-    virtual void erase(const std::string& name) const {}
-
-    virtual Node* unmin(Node* arg) const;
-    virtual void print(Node* expr, std::ostream& stream) const = 0;
-    
-    virtual bool eq(const TType* other) const { return code == other->code; }
-
-    virtual Node* val(Node* arg) const { return arg; }
-    virtual Node* var(const std::string& name) const { return nullptr; }
-
-    virtual Node* binop(Node* a, const std::string& op, Node* b) const;
-
-    virtual Node* opInt(Node* a, const std::string& op, Node* b) const;
-    virtual Node* opRat(Node* a, const std::string& op, Node* b) const; 
-    virtual Node* opMod(Node* a, const std::string& op, Node* b) const;
-    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const;
-
-    virtual Node* polyAssign(const std::string& name, Node* val) const;
-    virtual Node* polyVar(const std::string& name) const { return nullptr; }
-    virtual Node* polyMono(Node* c, Node* m) const { return nullptr; }
-
-    virtual std::string toStr() const = 0;
-
-protected:
-    size_t code;
-};
+#include "Type.hpp"
 
 class Node {
 public:
-    Node(const TType* t) : t(t) {}
+    Node(const Type* t) : t(t) {}
     virtual ~Node() = default;
 
     virtual void evaluate() = 0;
     bool isEval() { return evaluated; }
 
-    const TType* t;
+    const Type* t;
 
 protected:
     bool evaluated = false;
@@ -68,7 +21,7 @@ protected:
 
 class NIntVal : public Node {
 public:
-    NIntVal() : Node(TType::INTEGER) {}
+    NIntVal() : Node(Type::INTEGER) {}
     virtual ~NIntVal() override = default;
 
     Integer getValue() const { return value; }
@@ -79,7 +32,7 @@ protected:
 
 class NRatVal : public Node {
 public:
-    NRatVal() : Node(TType::RATIONAL) {}
+    NRatVal() : Node(Type::RATIONAL) {}
     virtual ~NRatVal() override = default;
 
     Rational getValue() const { return value; }
@@ -90,7 +43,7 @@ protected:
 
 class NModVal : public Node {
 public:
-    NModVal() : Node(TType::MODULAR) {}
+    NModVal() : Node(Type::MODULAR) {}
     virtual ~NModVal() override = default;
 
     Modular getValue() const { return value; }
@@ -101,7 +54,7 @@ protected:
 
 class NVar : public Node {
 public:
-    NVar(const std::string& name) : Node(TType::VARIABLE), name(name) {}
+    NVar(const std::string& name) : Node(Type::VARIABLE), name(name) {}
     virtual ~NVar() override = default;
 
     void evaluate() override { evaluated = true; }

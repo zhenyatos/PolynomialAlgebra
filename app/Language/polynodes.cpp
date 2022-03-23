@@ -38,11 +38,11 @@ void NIntPolyOp::evaluate() {
         right->evaluate();
     Polynomial<Integer> a;
     Polynomial<Integer> b;
-    if (left->t->eq(TType::INTEGER))
+    if (left->t->eq(Type::INTEGER))
         a = Polynomial<Integer>({((NIntVal*)left)->getValue()});
     else
         a = ((NIntPolyVal*)left)->getPoly();
-    if (right->t->eq(TType::INTEGER))
+    if (right->t->eq(Type::INTEGER))
         b = Polynomial<Integer>({((NIntVal*)right)->getValue()});
     else
         b = ((NIntPolyVal*)right)->getPoly();
@@ -104,11 +104,11 @@ void NRatPolyOp::evaluate() {
         right->evaluate();
     Polynomial<Rational> a;
     Polynomial<Rational> b;
-    if (left->t->eq(TType::RATIONAL))
+    if (left->t->eq(Type::RATIONAL))
         a = Polynomial<Rational>({((NRatVal*)left)->getValue()});
     else
         a = ((NRatPolyVal*)left)->getPoly();
-    if (right->t->eq(TType::RATIONAL))
+    if (right->t->eq(Type::RATIONAL))
         b = Polynomial<Rational>({((NRatVal*)right)->getValue()});
     else
         b = ((NRatPolyVal*)right)->getPoly();
@@ -172,11 +172,11 @@ void NModPolyOp::evaluate() {
         right->evaluate();
     Polynomial<Modular> a;
     Polynomial<Modular> b;
-    if (left->t->eq(TType::MODULAR))
+    if (left->t->eq(Type::MODULAR))
         a = Polynomial<Modular>({((NModVal*)left)->getValue()});
     else
         a = ((NModPolyVal*)left)->getPoly();
-    if (right->t->eq(TType::MODULAR))
+    if (right->t->eq(Type::MODULAR))
         b = Polynomial<Modular>({((NModVal*)right)->getValue()});
     else
         b = ((NModPolyVal*)right)->getPoly();

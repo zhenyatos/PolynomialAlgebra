@@ -1,51 +1,52 @@
+#include "Type.hpp"
 #include "nodes.hpp"
 #include "polynodes.hpp"
 #include "Interpreter.hpp"
 
-Node* TType::polyAssign(const std::string& name, Node* val) const {
+Node* Type::polyAssign(const std::string& name, Node* val) const {
     throw std::runtime_error("Polynomial{" + toStr() + "} is undefined");
 }
 
-Node* TType::unmin(Node* arg) const {
+Node* Type::unmin(Node* arg) const {
     throw std::runtime_error("No function matching -(" + arg->t->toStr() + ")");
 }
 
-Node* TType::opInt(Node* a, const std::string& op, Node* b) const {
+Node* Type::opInt(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                     b->t->toStr() + ")");
 }
 
-Node* TType::opRat(Node* a, const std::string& op, Node* b) const {
+Node* Type::opRat(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                     b->t->toStr() + ")");
 }
 
-Node* TType::opMod(Node* a, const std::string& op, Node* b) const {
+Node* Type::opMod(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                     b->t->toStr() + ")");
 }
 
-Node* TType::opPoly(Node* a, const std::string& op, Node* b) const {
+Node* Type::opPoly(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                     b->t->toStr() + ")");
 }
 
-Node* TType::binop(Node* a, const std::string& op, Node* b) const {
+Node* Type::binop(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                 b->t->toStr() + ")");
 }
 
  
 
-const TType* TType::NOTHING  = nullptr;
-const TType* TType::INTEGER  = nullptr;
-const TType* TType::RATIONAL = nullptr;
-const TType* TType::MODULAR  = nullptr;
-const TType* TType::VARIABLE = nullptr;
-const TType* TType::MONOMIAL = nullptr;
-const TType* TType::POLY_INT = nullptr;
-const TType* TType::POLY_RAT = nullptr;
-const TType* TType::POLY_MOD = nullptr;
+const Type* Type::NOTHING  = nullptr;
+const Type* Type::INTEGER  = nullptr;
+const Type* Type::RATIONAL = nullptr;
+const Type* Type::MODULAR  = nullptr;
+const Type* Type::VARIABLE = nullptr;
+const Type* Type::MONOMIAL = nullptr;
+const Type* Type::POLY_INT = nullptr;
+const Type* Type::POLY_RAT = nullptr;
+const Type* Type::POLY_MOD = nullptr;
 
 class NIntUMin : public NIntVal {
 public:
@@ -122,9 +123,9 @@ private:
     Node* arg;
 };
 
-class TNothing : public TType {
+class TNothing : public Type {
 public:
-    TNothing() : TType(0) {}
+    TNothing() : Type(0) {}
     virtual ~TNothing() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -139,9 +140,9 @@ public:
 };
 
 
-class TInteger : public TType {
+class TInteger : public Type {
 public:
-    TInteger() : TType(1) {}
+    TInteger() : Type(1) {}
     virtual ~TInteger() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -197,9 +198,9 @@ public:
     }
 };
 
-class TRational : public TType {
+class TRational : public Type {
 public:
-    TRational() : TType(2) {}
+    TRational() : Type(2) {}
     virtual ~TRational() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -255,9 +256,9 @@ public:
     }
 };
 
-class TModular : public TType {
+class TModular : public Type {
 public:
-    TModular() : TType(3) {}
+    TModular() : Type(3) {}
     virtual ~TModular() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -309,9 +310,9 @@ public:
     }
 };
 
-class TVariable : public TType {
+class TVariable : public Type {
 public:
-    TVariable() : TType(4) {}
+    TVariable() : Type(4) {}
     virtual ~TVariable() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -320,7 +321,7 @@ public:
     
     virtual Node* val(Node* arg) const override {
         std::string name = ((NVar*)arg)->getName();
-        const TType* type = Interpreter::variableExist(name);
+        const Type* type = Interpreter::variableExist(name);
         if (type == nullptr)
             throw std::runtime_error("Reference to the uninitialized variable " + name);
         return type->var(name);
@@ -333,9 +334,9 @@ public:
     }
 };
 
-class TMonomial : public TType {
+class TMonomial : public Type {
 public:
-    TMonomial() : TType(5) {}
+    TMonomial() : Type(5) {}
     virtual ~TMonomial() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
@@ -352,17 +353,17 @@ public:
     }
 };
 
-class TPolynomial : public TType {
+class TPolynomial : public Type {
 public:
-    TPolynomial(const TType* base) : TType(6), base(base) {}
+    TPolynomial(const Type* base) : Type(6), base(base) {}
     virtual ~TPolynomial() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         return base->polyAssign(name, val);
     }
 
-    virtual bool eq(const TType* other) const override { 
-        if (TType::eq(other)) {
+    virtual bool eq(const Type* other) const override { 
+        if (Type::eq(other)) {
             return base == ((TPolynomial*)other)->base;
         }
         return false;
@@ -393,12 +394,12 @@ public:
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
-        const TType* b = ((TPolynomial*)expr->t)->base;
-        if (b->eq(TType::INTEGER))
+        const Type* b = ((TPolynomial*)expr->t)->base;
+        if (b->eq(Type::INTEGER))
             stream << ((NIntPolyVal*)expr)->getPoly() << std::endl;
-        else if (b->eq(TType::RATIONAL))
+        else if (b->eq(Type::RATIONAL))
             stream << ((NRatPolyVal*)expr)->getPoly() << std::endl;
-        else if (b->eq(TType::MODULAR))
+        else if (b->eq(Type::MODULAR))
             stream << ((NModPolyVal*)expr)->getPoly() << std::endl;
     }
     
@@ -406,32 +407,32 @@ public:
         return "POLYNOMIAL{" + base->toStr() + "}";
     }
 
-    const TType* getBase() const { return base; }
+    const Type* getBase() const { return base; }
 
 private:
-    const TType* base;
+    const Type* base;
 };
 
-void TType::initialize() {
-    TType::NOTHING    = new TNothing();
-    TType::INTEGER    = new TInteger();
-    TType::RATIONAL   = new TRational();
-    TType::MODULAR    = new TModular();
-    TType::VARIABLE   = new TVariable();
-    TType::MONOMIAL   = new TMonomial();
-    TType::POLY_INT   = new TPolynomial(TType::INTEGER);
-    TType::POLY_RAT   = new TPolynomial(TType::RATIONAL);
-    TType::POLY_MOD   = new TPolynomial(TType::MODULAR);
+void Type::initialize() {
+    Type::NOTHING    = new TNothing();
+    Type::INTEGER    = new TInteger();
+    Type::RATIONAL   = new TRational();
+    Type::MODULAR    = new TModular();
+    Type::VARIABLE   = new TVariable();
+    Type::MONOMIAL   = new TMonomial();
+    Type::POLY_INT   = new TPolynomial(Type::INTEGER);
+    Type::POLY_RAT   = new TPolynomial(Type::RATIONAL);
+    Type::POLY_MOD   = new TPolynomial(Type::MODULAR);
 }
 
-void TType::destroy() {
-    delete TType::NOTHING;
-    delete TType::INTEGER;
-    delete TType::RATIONAL;
-    delete TType::MODULAR;
-    delete TType::VARIABLE;
-    delete TType::MONOMIAL;
-    delete TType::POLY_INT;
-    delete TType::POLY_RAT;
-    delete TType::POLY_MOD;
+void Type::destroy() {
+    delete Type::NOTHING;
+    delete Type::INTEGER;
+    delete Type::RATIONAL;
+    delete Type::MODULAR;
+    delete Type::VARIABLE;
+    delete Type::MONOMIAL;
+    delete Type::POLY_INT;
+    delete Type::POLY_RAT;
+    delete Type::POLY_MOD;
 }
