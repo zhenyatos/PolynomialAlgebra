@@ -25,6 +25,7 @@ public:
     virtual void erase(const std::string& name) const {}
 
     virtual Node* unmin(Node* arg) const;
+    virtual Node* abs(Node* arg) const;
     virtual void print(Node* expr, std::ostream& stream) const = 0;
     
     virtual bool eq(const Type* other) const { return code == other->code; }

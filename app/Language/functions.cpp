@@ -1,36 +1,6 @@
 #include "functions.hpp"
 #include "polynodes.hpp"
 
-class NIntAbs : public NIntVal {
-public:
-    NIntAbs(Node* arg) : arg(arg) {}
-    ~NIntAbs() override = default;
-
-    void evaluate() override {
-        if (!arg->isEval())
-            arg->evaluate();
-        value = ((NIntVal*)arg)->getValue().abs();
-    }
-
-private:
-    Node* arg;
-};
-
-class NRatAbs : public NRatVal {
-public:
-    NRatAbs(Node* arg) : arg(arg) {}
-    ~NRatAbs() override = default;
-
-    void evaluate() override {
-        if (!arg->isEval())
-            arg->evaluate();
-        value = ((NRatVal*)arg)->getValue().abs();
-    }
-
-private:
-    Node* arg;
-};
-
 class NIntGCD : public NIntVal {
 public:
     NIntGCD(Node* a, Node* b) : a(a), b(b) {}
@@ -90,12 +60,7 @@ private:
 };
 
 Node* abs(Node* x) {
-    if (x->t->eq(Type::INTEGER))
-        return new NIntAbs(x);
-    else if (x->t->eq(Type::RATIONAL))
-        return new NRatAbs(x);
-    else
-        throw std::runtime_error("No function matching abs(" + x->t->toStr() + ")");
+    return x->t->abs(x);
 }
 
 Node* unmin(Node* x) {

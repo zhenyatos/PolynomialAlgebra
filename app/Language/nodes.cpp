@@ -13,8 +13,6 @@ void NInt::evaluate() {
 NRat::NRat(Node* p, Node* q) : p(p), q(q) {}
 
 void NRat::evaluate() {
-    if (p->t->eq(Type::INTEGER) || q->t->eq(Type::INTEGER))
-        throw std::runtime_error("No method matching //(" + p->t->toStr() + ", " +  q->t->toStr() + ")");
     if (!p->isEval())
         p->evaluate();
     if (!q->isEval())

@@ -8,7 +8,11 @@ Node* Type::polyAssign(const std::string& name, Node* val) const {
 }
 
 Node* Type::unmin(Node* arg) const {
-    throw std::runtime_error("No function matching -(" + arg->t->toStr() + ")");
+    throw std::runtime_error("No method matching -(" + arg->t->toStr() + ")");
+}
+
+Node* Type::abs(Node* arg) const {
+    throw std::runtime_error("No method matching abs(" + arg->t->toStr() + ")");
 }
 
 Node* Type::opInt(Node* a, const std::string& op, Node* b) const {
@@ -35,18 +39,6 @@ Node* Type::binop(Node* a, const std::string& op, Node* b) const {
     throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
                                 b->t->toStr() + ")");
 }
-
- 
-
-const Type* Type::NOTHING  = nullptr;
-const Type* Type::INTEGER  = nullptr;
-const Type* Type::RATIONAL = nullptr;
-const Type* Type::MODULAR  = nullptr;
-const Type* Type::VARIABLE = nullptr;
-const Type* Type::MONOMIAL = nullptr;
-const Type* Type::POLY_INT = nullptr;
-const Type* Type::POLY_RAT = nullptr;
-const Type* Type::POLY_MOD = nullptr;
 
 class NIntUMin : public NIntVal {
 public:
@@ -123,6 +115,36 @@ private:
     Node* arg;
 };
 
+class NIntAbs : public NIntVal {
+public:
+    NIntAbs(Node* arg) : arg(arg) {}
+    ~NIntAbs() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        value = ((NIntVal*)arg)->getValue().abs();
+    }
+
+private:
+    Node* arg;
+};
+
+class NRatAbs : public NRatVal {
+public:
+    NRatAbs(Node* arg) : arg(arg) {}
+    ~NRatAbs() override = default;
+
+    void evaluate() override {
+        if (!arg->isEval())
+            arg->evaluate();
+        value = ((NRatVal*)arg)->getValue().abs();
+    }
+
+private:
+    Node* arg;
+};
+
 class TNothing : public Type {
 public:
     TNothing() : Type(0) {}
@@ -159,6 +181,10 @@ public:
     
     Node* unmin(Node* arg) const override {
         return new NIntUMin(arg);
+    }
+
+    Node* abs(Node* arg) const override {
+        return new NIntAbs(arg);
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
@@ -211,12 +237,16 @@ public:
         return new NRatPolyAssign(name, val);
     }
 
-    virtual void erase(const std::string& name) const override {
+    void erase(const std::string& name) const override {
         Interpreter::eraseRat(name);
     }
 
     Node* unmin(Node* arg) const override {
         return new NRatUMin(arg);
+    }
+
+    Node* abs(Node* arg) const override {
+        return new NRatAbs(arg);
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
@@ -436,3 +466,13 @@ void Type::destroy() {
     delete Type::POLY_RAT;
     delete Type::POLY_MOD;
 }
+
+const Type* Type::NOTHING  = nullptr;
+const Type* Type::INTEGER  = nullptr;
+const Type* Type::RATIONAL = nullptr;
+const Type* Type::MODULAR  = nullptr;
+const Type* Type::VARIABLE = nullptr;
+const Type* Type::MONOMIAL = nullptr;
+const Type* Type::POLY_INT = nullptr;
+const Type* Type::POLY_RAT = nullptr;
+const Type* Type::POLY_MOD = nullptr;
