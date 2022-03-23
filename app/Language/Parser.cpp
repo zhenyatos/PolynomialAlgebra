@@ -53,9 +53,9 @@ Node* Parser::statement() {
             eat(TokenName::ASSIGNMENT);
             Node* res = statement();
             nodes.push_back(assign(name, res));
+            return nodes.back();
         } else
-            nodes.push_back(varval(l));
-        return nodes.back();
+            return varval(l);
     }
 
     return l;

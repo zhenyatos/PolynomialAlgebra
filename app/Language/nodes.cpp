@@ -27,7 +27,7 @@ void NRat::evaluate() {
 NMod::NMod(Node* a, Node* N) : a(a), N(N) {}
 
 void NMod::evaluate() {
-    if (a->t->eq(TType::INTEGER) || N->t->eq(TType::INTEGER))
+    if (!a->t->eq(TType::INTEGER) || !N->t->eq(TType::INTEGER))
         throw std::runtime_error("No method matching [" + a->t->toStr() + ", " + N->t->toStr() + "]");
     if (!a->isEval())
         a->evaluate();
