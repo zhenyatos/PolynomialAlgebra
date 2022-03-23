@@ -10,6 +10,7 @@
 
 class Node;
 
+
 class TType {
 public:
     static const TType* NOTHING;
@@ -18,6 +19,9 @@ public:
     static const TType* MODULAR;
     static const TType* VARIABLE;
     static const TType* MONOMIAL;
+    static const TType* POLY_INT;
+    static const TType* POLY_RAT;
+    static const TType* POLY_MOD;
 
     static void initialize();
     static void destroy();
@@ -34,15 +38,18 @@ public:
     virtual bool eq(const TType* other) const { return code == other->code; }
 
     virtual Node* val(Node* arg) const { return arg; }
-    virtual Node* var(const std::string& name) const;
+    virtual Node* var(const std::string& name) const { return nullptr; }
 
     virtual Node* binop(Node* a, const std::string& op, Node* b) const;
 
     virtual Node* opInt(Node* a, const std::string& op, Node* b) const;
     virtual Node* opRat(Node* a, const std::string& op, Node* b) const; 
     virtual Node* opMod(Node* a, const std::string& op, Node* b) const;
+    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const;
 
-    virtual Node* polymono(Node* c, Node* m) const { return nullptr; }
+    virtual Node* polyAssign(const std::string& name, Node* val) const;
+    virtual Node* polyVar(const std::string& name) const { return nullptr; }
+    virtual Node* polyMono(Node* c, Node* m) const { return nullptr; }
 
     virtual std::string toStr() const = 0;
 

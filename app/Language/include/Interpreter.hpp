@@ -18,10 +18,8 @@ private:
 
 public:
     Interpreter() = delete;
-
-    static std::pair<bool, Type> variableExists(const std::string& name);
     
-    static const TType* varEx(const std::string& name);
+    static const TType* variableExist(const std::string& name);
 
     static void eraseInt(const std::string& name) {
         intVars.erase(name);
@@ -33,6 +31,14 @@ public:
 
     static void eraseMod(const std::string& name) {
         modVars.erase(name);
+    }
+
+    static void erasePolyInt(const std::string& name) {
+        intPolyVars.erase(name);
+    }
+
+    static void erasePolyRat(const std::string& name) {
+        ratPolyVars.erase(name);
     }
     
     static void setIntValue(const std::string& name, Integer value);

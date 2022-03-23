@@ -28,20 +28,9 @@ private:
     Node* N;
 };
 
-class NPolyVal : public Node {
-public:
-    NPolyVal(Type base) : Node(Type::POLYNOMIAL, nullptr), base(base) {};
-    virtual ~NPolyVal() override = default;
-
-    Type getBase() const { return base; }
-
-protected:
-    Type base;
-};
-
-class NIntPolyVal : public NPolyVal {
+class NIntPolyVal : public Node {
 public: 
-    NIntPolyVal() : NPolyVal(Type::INTEGER) {}
+    NIntPolyVal() : Node(Type::POLY_INT, TType::POLY_INT) {}
     virtual ~NIntPolyVal() override = default;
 
     Polynomial<Integer> getPoly() const { return poly; }
@@ -98,9 +87,9 @@ private:
     std::string name;
 };
 
-class NRatPolyVal : public NPolyVal {
+class NRatPolyVal : public Node {
 public: 
-    NRatPolyVal() : NPolyVal(Type::RATIONAL) {}
+    NRatPolyVal() : Node(Type::POLY_RAT, TType::POLY_RAT) {}
     virtual ~NRatPolyVal() override = default;
 
     Polynomial<Rational> getPoly() const { return poly; }

@@ -118,14 +118,13 @@ Node* Parser::concat() {
         eat(TokenName::DOT);
         l = varval(l);
         Node* r = varval(factor());
-        Type rtype = r->type;
-        if (rtype == Type::MONOMIAL) {
+        if (r->t->eq(TType::MONOMIAL)) {
             nodes.push_back(polymono(l, r));
             return nodes.back();
         }
         else
-            throw std::runtime_error("No method matching .(" + std::string(l->type) + ", " +
-                                        std::string(rtype) + ")");
+            throw std::runtime_error("No method matching .(" + l->t->toStr() + ", " +
+                                        r->t->toStr() + ")");
     }
 
     return l;

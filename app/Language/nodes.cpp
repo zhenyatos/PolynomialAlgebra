@@ -131,19 +131,6 @@ void NPrint::evaluate() {
     if (!expr->isEval())
         expr->evaluate();
     expr->t->print(expr, std::cout);
-    /*
-    else if (type == Type::MONOMIAL) {
-        NMonom* m = (NMonom*)expr;
-        std::cout << "X^" << m->getDeg() << std::endl;
-    } 
-    else if (type == Type::POLYNOMIAL) {
-        Type b = ((NPolyVal*)expr)->getBase();
-        if (b == Type::INTEGER)
-            std::cout << ((NIntPolyVal*)expr)->getPoly() << std::endl;
-        else if (b == Type::RATIONAL)
-            std::cout << ((NRatPolyVal*)expr)->getPoly() << std::endl;
-    }
-    */
     evaluated = true;
 }
 

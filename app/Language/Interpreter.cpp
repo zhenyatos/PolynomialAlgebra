@@ -8,21 +8,7 @@ std::map<std::string, Polynomial<Rational>> Interpreter::ratPolyVars;
 
 std::map<std::string, const TType*> vars;
 
-std::pair<bool, Type> Interpreter::variableExists(const std::string& name) {
-    if (intVars.find(name) != intVars.end())
-        return { true, Type::INTEGER };
-    else if (ratVars.find(name) != ratVars.end())
-        return { true, Type::RATIONAL };
-    else if (modVars.find(name) != modVars.end())
-        return { true, Type::MODULAR };
-    else if (intPolyVars.find(name) != intPolyVars.end())
-        return { true, Type::POLY_INT };
-    else if (ratPolyVars.find(name) != ratPolyVars.end())
-        return { true, Type::POLY_RAT };
-    return {false, Type::NOTHING };
-}
-
-const TType* Interpreter::varEx(const std::string& name) {
+const TType* Interpreter::variableExist(const std::string& name) {
     if (vars.find(name) != vars.end())
         return vars[name];
     else
@@ -30,7 +16,7 @@ const TType* Interpreter::varEx(const std::string& name) {
 }
 
 void Interpreter::setIntValue(const std::string& name, Integer value) {
-    const TType* type = varEx(name);
+    const TType* type = variableExist(name);
     if (type != nullptr && !type->eq(TType::INTEGER))
         type->erase(name);
     intVars[name] = value;
@@ -38,7 +24,7 @@ void Interpreter::setIntValue(const std::string& name, Integer value) {
 }
 
 void Interpreter::setRatValue(const std::string& name, Rational value) {
-    const TType* type = varEx(name);
+    const TType* type = variableExist(name);
     if (type != nullptr && !type->eq(TType::RATIONAL))
         type->erase(name);
     ratVars[name] = value;
@@ -46,7 +32,7 @@ void Interpreter::setRatValue(const std::string& name, Rational value) {
 }
 
 void Interpreter::setModValue(const std::string& name, Modular value) {
-    const TType* type = varEx(name);
+    const TType* type = variableExist(name);
     if (type != nullptr && !type->eq(TType::MODULAR))
         type->erase(name);
     modVars[name] = value;
@@ -54,34 +40,23 @@ void Interpreter::setModValue(const std::string& name, Modular value) {
 }
 
 void Interpreter::setPolyIntValue(const std::string& name, const Polynomial<Integer>& value) {
-    auto check = variableExists(name);
-    if (check.second == Type::INTEGER)
-        intVars.erase(name);
-    else if (check.second == Type::RATIONAL)
-        ratVars.erase(name);
-    else if (check.second == Type::MODULAR)
-        modVars.erase(name);
-    else if (check.second == Type::POLY_RAT)
-        ratPolyVars.erase(name);
-    intPolyVars[name] = value;
-    
+    const TType* type = variableExist(name);
+    if (type != nullptr && !type->eq(TType::POLY_INT))
+        type->erase(name);
+    intPolyVars[name] = value; 
+    vars[name] = TType::POLY_INT;   
 }
 
 void Interpreter::setPolyRatValue(const std::string& name, const Polynomial<Rational>& value) {
-    auto check = variableExists(name);
-    if (check.second == Type::INTEGER)
-        intVars.erase(name);
-    else if (check.second == Type::RATIONAL)
-        ratVars.erase(name);
-    else if (check.second == Type::MODULAR)
-        modVars.erase(name);
-    else if (check.second == Type::POLY_INT)
-        intPolyVars.erase(name);
-    ratPolyVars[name] = value;
+    const TType* type = variableExist(name);
+    if (type != nullptr && !type->eq(TType::POLY_RAT))
+        type->erase(name);
+    ratPolyVars[name] = value; 
+    vars[name] = TType::POLY_RAT;   
 }
 
 Integer Interpreter::getIntValue(const std::string& name) {
-    const TType* check = varEx(name);
+    const TType* check = variableExist(name);
     if (check == nullptr)
         throw std::runtime_error("Reference to the uninitialized variable " + name);
     else if (!check->eq(TType::INTEGER))
@@ -90,7 +65,7 @@ Integer Interpreter::getIntValue(const std::string& name) {
 }
 
 Rational Interpreter::getRatValue(const std::string& name) {
-    const TType* check = varEx(name);
+    const TType* check = variableExist(name);
     if (check == nullptr)
         throw std::runtime_error("Reference to the uninitialized variable " + name);
     else if (!check->eq(TType::RATIONAL))
@@ -99,7 +74,7 @@ Rational Interpreter::getRatValue(const std::string& name) {
 }
 
 Modular Interpreter::getModValue(const std::string& name) {
-    const TType* check = varEx(name);
+    const TType* check = variableExist(name);
     if (check == nullptr)
         throw std::runtime_error("Reference to the uninitialized variable " + name);
     else if (!check->eq(TType::MODULAR))
@@ -108,19 +83,19 @@ Modular Interpreter::getModValue(const std::string& name) {
 }
 
 Polynomial<Integer> Interpreter::getPolyIntValue(const std::string& name) {
-    auto check = variableExists(name);
-    if (!check.first)
+    const TType* check = variableExist(name);
+    if (check == nullptr)
         throw std::runtime_error("Reference to the uninitialized variable " + name);
-    else if (check.second != Type::POLY_INT)
-        throw std::runtime_error("Variable " + name + " is not POLYNOMIAL(INTEGER)");
+    else if (!check->eq(TType::POLY_INT))
+        throw std::runtime_error("Variable " + name + " is not " + TType::POLY_INT->toStr());
     return intPolyVars[name];
 }
 
 Polynomial<Rational> Interpreter::getPolyRatValue(const std::string& name) {
-    auto check = variableExists(name);
-    if (!check.first)
+    const TType* check = variableExist(name);
+    if (check == nullptr)
         throw std::runtime_error("Reference to the uninitialized variable " + name);
-    else if (check.second != Type::POLY_RAT)
-        throw std::runtime_error("Variable " + name + " is not POLYNOMIAL(RATIONAL)");
+    else if (!check->eq(TType::POLY_RAT))
+        throw std::runtime_error("Variable " + name + " is not " + TType::POLY_RAT->toStr());
     return ratPolyVars[name];
 }

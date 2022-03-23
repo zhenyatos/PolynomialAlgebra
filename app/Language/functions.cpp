@@ -113,35 +113,16 @@ Node* binop(Node* l, Node* r, const std::string& op) {
     return l->t->binop(l, op, r);
 }
 
-Node* polyop(Node* l, Node* r, const std::string& op) {
-    Type ltype;
-    Type rtype;
-    if (l->type == Type::POLYNOMIAL)
-        ltype = ((NPolyVal*)l)->getBase();
-    else
-        ltype = l->type;
-    if (r->type == Type::POLYNOMIAL) 
-        rtype = ((NPolyVal*)r)->getBase();
-    else 
-        rtype = r->type;
-    if (ltype == Type::INTEGER && rtype == Type::INTEGER)
-        return new NIntPolyOp(l, op, r);
-    if (ltype == Type::RATIONAL && rtype == Type::RATIONAL)
-        return new NRatPolyOp(l, op, r);
-    else
-        throw std::runtime_error("No method matching " + op + "(" + std::string(ltype) + ", " +
-                                    std::string(rtype) + ")");
-}
-
 Node* peval(Node* p, Node* x) {
-    Type base = ((NPolyVal*)p)->getBase();
-    if (base == Type::INTEGER && x->type == Type::INTEGER)
-        return new NIntPolyEvaluate(p, x);
-    else if (base == Type::RATIONAL && x->type == Type::RATIONAL)
-        return new NRatPolyEvaluate(p, x);
-    else
-        throw std::runtime_error("No method matching eval(POLYNOMIAL{" + std::string(base) + "}, " + 
-                                std::string(x->type) + ")");
+    // Type base = ((NPolyVal*)p)->getBase();
+    // if (base == Type::INTEGER && x->type == Type::INTEGER)
+    //     return new NIntPolyEvaluate(p, x);
+    // else if (base == Type::RATIONAL && x->type == Type::RATIONAL)
+    //     return new NRatPolyEvaluate(p, x);
+    // else
+    //     throw std::runtime_error("No method matching eval(POLYNOMIAL{" + std::string(base) + "}, " + 
+    //                             std::string(x->type) + ")");
+    return nullptr;
 }
 
 Node* assign(std::string name, Node* val) {
@@ -149,5 +130,5 @@ Node* assign(std::string name, Node* val) {
 }
 
 Node* polymono(Node* c, Node* m) {
-    return c->t->polymono(c, m);
+    return c->t->polyMono(c, m);
 }
