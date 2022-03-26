@@ -276,7 +276,10 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NIntPolyOp(a, op, b);
+        if (b->t->eq(Type::POLY_INT))
+            return new NIntPolyOp(a, op, b);
+        else
+            return new NRatPolyOp(a, op, b);
     }
 
     Node* polyVar(const std::string& name) const { return 
@@ -483,7 +486,10 @@ public:
     }
 
     Node* opInt(Node* a, const std::string& op, Node* b) const override {
-        return new NIntPolyOp(a, op, b);
+        if (base->eq(Type::INTEGER))
+            return new NIntPolyOp(a, op, b);
+        else
+            return new NRatPolyOp(a, op, b);
     }
 
     Node* opRat(Node* a, const std::string& op, Node* b) const override {

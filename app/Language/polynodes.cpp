@@ -105,11 +105,15 @@ void NRatPolyOp::evaluate() {
     Polynomial<Rational> a;
     Polynomial<Rational> b;
     if (left->t->eq(Type::RATIONAL))
-        a = Polynomial<Rational>({((NRatVal*)left)->getValue()});
+        a = Polynomial<Rational>( { ((NRatVal*)left)->getValue() } );
+    else if (left->t->eq(Type::INTEGER))
+        a = Polynomial<Rational>( { Rational(((NIntVal*)left)->getValue()) });
     else
         a = ((NRatPolyVal*)left)->getPoly();
     if (right->t->eq(Type::RATIONAL))
         b = Polynomial<Rational>({((NRatVal*)right)->getValue()});
+    else if (right->t->eq(Type::INTEGER))
+        b = Polynomial<Rational>( { Rational(((NIntVal*)right)->getValue()) });
     else
         b = ((NRatPolyVal*)right)->getPoly();
 
