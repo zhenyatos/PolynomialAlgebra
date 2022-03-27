@@ -1,6 +1,15 @@
 #include "polynodes.hpp"
 #include "Interpreter.hpp"
 
+Polynomial<Rational> cast(const Polynomial<Integer>& p) {
+    std::vector<Integer> c = p.getCoeff();
+    std::vector<Rational> resCoeff;
+    for (Integer i : c) {
+        resCoeff.push_back(Rational(i));
+    }
+    return resCoeff;
+}
+
 NPowMonom::NPowMonom(Node* N) : N(N) {}
 
 void NPowMonom::evaluate() {
@@ -105,13 +114,23 @@ void NRatPolyOp::evaluate() {
     Polynomial<Rational> a;
     Polynomial<Rational> b;
     if (left->t->eq(Type::RATIONAL))
-        a = Polynomial<Rational>({((NRatVal*)left)->getValue()});
-    else
+        a = Polynomial<Rational>( { ((NRatVal*)left)->getValue() } );
+    else if (left->t->eq(Type::INTEGER))
+        a = Polynomial<Rational>( { Rational(((NIntVal*)left)->getValue()) });
+    else if (left->t->eq(Type::POLY_RAT))
         a = ((NRatPolyVal*)left)->getPoly();
+    else if (left->t->eq(Type::POLY_INT))
+        a = cast(((NIntPolyVal*)left)->getPoly());
+
     if (right->t->eq(Type::RATIONAL))
         b = Polynomial<Rational>({((NRatVal*)right)->getValue()});
-    else
+    else if (right->t->eq(Type::INTEGER))
+        b = Polynomial<Rational>( { Rational(((NIntVal*)right)->getValue()) });
+    else if (right->t->eq(Type::POLY_RAT))
         b = ((NRatPolyVal*)right)->getPoly();
+    else if (right->t->eq(Type::POLY_INT))
+        b = cast(((NIntPolyVal*)right)->getPoly());
+
 
     if (op == "+")
         poly = a + b;

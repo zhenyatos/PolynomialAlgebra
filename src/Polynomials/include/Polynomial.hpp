@@ -22,15 +22,26 @@ public:
     T operator()(T x) const;
     int deg() const;
 
+    inline std::vector<T> getCoeff() const { return coeff; }
+    inline bool isZero() const { return (coeff.size() == 0); }
+
     std::pair<Polynomial, Polynomial> divRem(const Polynomial& other) const;
     Polynomial div(const Polynomial& other) const;
     Polynomial rem(const Polynomial& other) const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Polynomial<T>& p) {
         if (!p.isZero()) {
-            stream << p.coeff[0];
-            for (int i = 1; i <= p.deg(); i++)
-                stream << " + " << p.coeff[i] << ".x^" << i;
+            int n = p.deg();
+            if (n == 0)
+                stream << p.coeff[n];
+            else {
+                stream << p.coeff[n] << ".X^" << n;
+                for (int i = n-1; i > 0; i--)
+                    if (p.coeff[i] != T(0))
+                        stream << " + " << p.coeff[i] << ".X^" << i;
+                if (p.coeff[0] != T(0))
+                    stream << " + " << p.coeff[0];
+            }
         }
         else
             stream << T(0);
@@ -44,7 +55,6 @@ private:
     std::vector<T> coeff;
 
     void reduce();
-    inline bool isZero() const { return (coeff.size() == 0); }
     inline T lead() const { return coeff.back(); }
 };
 
@@ -247,3 +257,15 @@ inline Polynomial<T> div(const Polynomial<T> a, const Polynomial<T>& b) { return
 
 template<class T>
 inline Polynomial<T> rem(const Polynomial<T>& a, const Polynomial<T>& b) { return a.rem(b); }
+
+template<class T>
+Polynomial<T> GCD(const Polynomial<T>& a, const Polynomial<T>& b) {
+    Polynomial<T> x = a;
+    Polynomial<T> y = b;
+    while (!y.isZero()) {
+        Polynomial<T> r = x.rem(y);
+        x = y;
+        y = r;
+    }
+    return x;
+}

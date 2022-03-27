@@ -3,12 +3,33 @@
 #include "polynodes.hpp"
 #include "Interpreter.hpp"
 
+void badOp(Node* a, const std::string& op, Node* b) {
+    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
+                                    b->t->toStr() + ")");
+}
+
 Node* Type::polyAssign(const std::string& name, Node* val) const {
     throw std::runtime_error("Polynomial{" + toStr() + "} is undefined");
 }
 
+Node* Type::polyEval(Node* p, Node* x) const { 
+    throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
+}
+
+Node* Type::polyMono(Node* c, Node* m) const { 
+    throw std::runtime_error("No method matching .(" + c->t->toStr() + ", " + m->t->toStr() + ")");
+}
+
 Node* Type::unmin(Node* arg) const {
     throw std::runtime_error("No method matching -(" + arg->t->toStr() + ")");
+}
+
+Node* Type::polyVar(const std::string& name) const { 
+    throw std::runtime_error("Can't interpret " + name + " as variable");
+};
+
+Node* Type::var(const std::string& name) const { 
+    throw std::runtime_error("Can't interpret " + name + " as variable");
 }
 
 Node* Type::abs(Node* arg) const {
@@ -16,34 +37,29 @@ Node* Type::abs(Node* arg) const {
 }
 
 Node* Type::opInt(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opRat(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opMod(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opPoly(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::binop(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 class NIntUMin : public NIntVal {
 public:
     NIntUMin(Node* arg) : arg(arg) {}
-    ~NIntUMin() override = default;
+    virtual ~NIntUMin() override = default;
 
     void evaluate() override {
         if (!arg->isEval())
@@ -58,7 +74,7 @@ private:
 class NRatUMin : public NRatVal {
 public:
     NRatUMin(Node* arg) : arg(arg) {}
-    ~NRatUMin() override = default;
+    virtual ~NRatUMin() override = default;
 
     void evaluate() override {
         if (!arg->isEval())
@@ -175,8 +191,20 @@ public:
             p->evaluate();
         if (!x->isEval())
             x->evaluate();
-        Polynomial<Rational> poly = ((NRatPolyVal*)p)->getPoly();
-        value = poly(((NRatVal*)x)->getValue());
+        Rational arg;
+        Polynomial<Rational> poly;
+        
+        if (x->t->eq(Type::INTEGER))
+            arg = Rational(((NIntVal*)x)->getValue());
+        else
+            arg = ((NRatVal*)x)->getValue();
+        
+        if (p->t->eq(Type::POLY_RAT))
+            poly = ((NRatPolyVal*)p)->getPoly();
+        else
+            poly = cast(((NIntPolyVal*)p)->getPoly());
+
+        value = poly(arg);
         evaluated = true;
     }
 
@@ -211,7 +239,7 @@ private:
 class TNothing : public Type {
 public:
     TNothing() : Type(0) {}
-    virtual ~TNothing() override {}
+    ~TNothing() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         throw std::runtime_error("Can't assign " + toStr());
@@ -219,7 +247,7 @@ public:
 
     void print(Node* expr, std::ostream& stream) const override { }
     
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "NOTHING";
     }
 };
@@ -228,7 +256,7 @@ public:
 class TInteger : public Type {
 public:
     TInteger() : Type(1) {}
-    virtual ~TInteger() override {}
+    ~TInteger() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         return new NIntAssign(name, val);
@@ -238,7 +266,7 @@ public:
         return new NIntPolyAssign(name, val);
     }
 
-    virtual void erase(const std::string& name) const override {
+    void erase(const std::string& name) const override {
         Interpreter::eraseInt(name);
     }
     
@@ -254,7 +282,7 @@ public:
         stream << ((NIntVal*)expr)->getValue() << std::endl;
     }
 
-    virtual Node* var(const std::string& name) const override {
+    Node* var(const std::string& name) const override {
         return new NIntValVar(name);
     }
 
@@ -262,31 +290,40 @@ public:
         return b->t->opInt(a, op, b);
     }
 
-    virtual Node* opInt(Node* a, const std::string& op, Node* b) const override {
+    Node* opInt(Node* a, const std::string& op, Node* b) const override {
         return new NIntOp(a, op, b);
     }
     
-    virtual Node* opRat(Node* a, const std::string& op, Node* b) const override {
+    Node* opRat(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
     }
 
-    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NIntPolyOp(a, op, b);
+    Node* opPoly(Node* a, const std::string& op, Node* b) const override {
+        if (a->t->eq(Type::POLY_INT) || a->t->eq(Type::INTEGER))
+            return new NIntPolyOp(a, op, b);
+        else if (a->t->eq(Type::POLY_RAT))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* polyVar(const std::string& name) const { return 
+    Node* polyVar(const std::string& name) const { return 
         new NIntPolyValVar(name); 
     }
 
-    virtual Node* polyMono(Node* c, Node* m) const override {
+    Node* polyMono(Node* c, Node* m) const override {
         return new NIntPolyMono(c, m);
     }
 
-    virtual Node* polyEval(Node* p, Node* x) const override {
-        return new NIntPolyEvaluate(p, x);
+    Node* polyEval(Node* p, Node* x) const override {
+        if (x->t->eq(Type::INTEGER))
+            return new NIntPolyEvaluate(p, x);
+        if (x->t->eq(Type::RATIONAL))
+            return new NRatPolyEvaluate(p, x);
+        throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
     }
     
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "INTEGER";
     }
 };
@@ -294,7 +331,7 @@ public:
 class TRational : public Type {
 public:
     TRational() : Type(2) {}
-    virtual ~TRational() override {}
+    ~TRational() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         return new NRatAssign(name, val);
@@ -324,35 +361,41 @@ public:
         return b->t->opRat(a, op, b);
     }
 
-    virtual Node* var(const std::string& name) const override {
+    Node* var(const std::string& name) const override {
         return new NRatValVar(name);
     }
 
-    virtual Node* polyVar(const std::string& name) const override {
+    Node* polyVar(const std::string& name) const override {
         return new NRatPolyValVar(name);
     }
 
-    virtual Node* opInt(Node* a, const std::string& op, Node* b) const override {
+    Node* opInt(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
     }
     
-    virtual Node* opRat(Node* a, const std::string& op, Node* b) const override {
+    Node* opRat(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
     }
 
-    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NRatPolyOp(a, op, b);
+    Node* opPoly(Node* a, const std::string& op, Node* b) const override {
+        if (a->t->eq(Type::POLY_INT) || a->t->eq(Type::POLY_RAT))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* polyMono(Node* c, Node* m) const override {
+    Node* polyMono(Node* c, Node* m) const override {
         return new NRatPolyMono(c, m);
     }
 
-    virtual Node* polyEval(Node* p, Node* x) const override {
-        return new NRatPolyEvaluate(p, x);
+    Node* polyEval(Node* p, Node* x) const override {
+        if (x->t->eq(Type::RATIONAL) || x->t->eq(Type::INTEGER))
+            return new NRatPolyEvaluate(p, x);
+        else
+            throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
     }
 
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "RATIONAL";
     }
 };
@@ -360,7 +403,7 @@ public:
 class TModular : public Type {
 public:
     TModular() : Type(3) {}
-    virtual ~TModular() override {}
+    ~TModular() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         return new NModAssign(name, val);
@@ -382,35 +425,38 @@ public:
         stream << ((NModVal*)expr)->getValue() << std::endl;
     }
 
-    virtual Node* binop(Node* a, const std::string& op, Node* b) const override {
+    Node* binop(Node* a, const std::string& op, Node* b) const override {
         return b->t->opMod(a, op, b);
     }
 
-    virtual Node* var(const std::string& name) const override {
+    Node* var(const std::string& name) const override {
         return new NModValVar(name);
     }
 
-    virtual Node* polyVar(const std::string& name) const override {
+    Node* polyVar(const std::string& name) const override {
         return new NModPolyValVar(name);
     }
 
-    virtual Node* opMod(Node* a, const std::string& op, Node* b) const override {
+    Node* opMod(Node* a, const std::string& op, Node* b) const override {
         return new NModOp(a, op, b);
     }
 
-    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NModPolyOp(a, op, b);
+    Node* opPoly(Node* a, const std::string& op, Node* b) const override {
+        if (a->t->eq(Type::POLY_MOD))
+            return new NModPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* polyMono(Node* c, Node* m) const override {
+    Node* polyMono(Node* c, Node* m) const override {
         return new NModPolyMono(c, m);
     }
 
-    virtual Node* polyEval(Node* p, Node* x) const override {
+    Node* polyEval(Node* p, Node* x) const override {
         return new NModPolyEvaluate(p, x);
     }
 
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "MODULAR";
     }
 };
@@ -418,13 +464,13 @@ public:
 class TVariable : public Type {
 public:
     TVariable() : Type(4) {}
-    virtual ~TVariable() override {}
+    ~TVariable() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         throw std::runtime_error("Can't assign " + toStr());
     }
     
-    virtual Node* val(Node* arg) const override {
+    Node* val(Node* arg) const override {
         std::string name = ((NVar*)arg)->getName();
         const Type* type = Interpreter::variableExist(name);
         if (type == nullptr)
@@ -434,7 +480,7 @@ public:
 
     void print(Node* expr, std::ostream& stream) const override {}
     
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "VARIABLE";
     }
 };
@@ -442,7 +488,7 @@ public:
 class TMonomial : public Type {
 public:
     TMonomial() : Type(5) {}
-    virtual ~TMonomial() override {}
+    ~TMonomial() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         throw std::runtime_error("Can't assign " + toStr());
@@ -453,7 +499,7 @@ public:
         stream << "X^" << m->getDeg() << std::endl;
     }
     
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "MONOMIAL";
     }
 };
@@ -461,16 +507,15 @@ public:
 class TPolynomial : public Type {
 public:
     TPolynomial(const Type* base) : Type(6), base(base) {}
-    virtual ~TPolynomial() override {}
+    ~TPolynomial() override {}
 
     Node* assign(const std::string& name, Node* val) const override {
         return base->polyAssign(name, val);
     }
 
-    virtual bool eq(const Type* other) const override { 
-        if (Type::eq(other)) {
+    bool eq(const Type* other) const override { 
+        if (Type::eq(other))
             return base == ((TPolynomial*)other)->base;
-        }
         return false;
     }
 
@@ -478,27 +523,38 @@ public:
         return b->t->opPoly(a, op, b);
     }
 
-    virtual Node* opInt(Node* a, const std::string& op, Node* b) const override {
-        return new NIntPolyOp(a, op, b);
+    Node* opInt(Node* a, const std::string& op, Node* b) const override {
+        if (base->eq(Type::INTEGER))
+            return new NIntPolyOp(a, op, b);
+        else if (base->eq(Type::RATIONAL))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* opRat(Node* a, const std::string& op, Node* b) const override {
-        return new NRatPolyOp(a, op, b);
+    Node* opRat(Node* a, const std::string& op, Node* b) const override {
+        if (base->eq(Type::RATIONAL) || base->eq(Type::INTEGER))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* opMod(Node* a, const std::string& op, Node* b) const override {
-        return new NModPolyOp(a, op, b);
+    Node* opMod(Node* a, const std::string& op, Node* b) const override {
+        if (base->eq(Type::MODULAR))
+            return new NModPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
-    virtual Node* opPoly(Node* a, const std::string& op, Node* b) const override {
+    Node* opPoly(Node* a, const std::string& op, Node* b) const override {
         return base->opPoly(a, op, b);
     }
 
-    virtual Node* var(const std::string& name) const override {
+    Node* var(const std::string& name) const override {
         return base->polyVar(name);
     }
 
-    virtual Node* polyEval(Node* p, Node* x) const override {
+    Node* polyEval(Node* p, Node* x) const override {
         return base->polyEval(p, x);
     }
 
@@ -512,7 +568,7 @@ public:
             stream << ((NModPolyVal*)expr)->getPoly() << std::endl;
     }
     
-    virtual std::string toStr() const override {
+    std::string toStr() const override {
         return "POLYNOMIAL{" + base->toStr() + "}";
     }
 
