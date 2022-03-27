@@ -22,6 +22,8 @@ public:
     T operator()(T x) const;
     int deg() const;
 
+    std::vector<T> getCoeff() const { return coeff; }
+
     std::pair<Polynomial, Polynomial> divRem(const Polynomial& other) const;
     Polynomial div(const Polynomial& other) const;
     Polynomial rem(const Polynomial& other) const;

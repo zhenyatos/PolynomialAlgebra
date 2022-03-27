@@ -3,6 +3,11 @@
 #include "polynodes.hpp"
 #include "Interpreter.hpp"
 
+void badOp(Node* a, const std::string& op, Node* b) {
+    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
+                                    b->t->toStr() + ")");
+}
+
 Node* Type::polyAssign(const std::string& name, Node* val) const {
     throw std::runtime_error("Polynomial{" + toStr() + "} is undefined");
 }
@@ -16,28 +21,23 @@ Node* Type::abs(Node* arg) const {
 }
 
 Node* Type::opInt(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opRat(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opMod(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::opPoly(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                    b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 Node* Type::binop(Node* a, const std::string& op, Node* b) const {
-    throw std::runtime_error("No method matching " + op + "(" + a->t->toStr() + ", " +
-                                b->t->toStr() + ")");
+    badOp(a, op, b);
 }
 
 class NIntUMin : public NIntVal {
@@ -276,10 +276,12 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        if (b->t->eq(Type::POLY_INT))
+        if (a->t->eq(Type::POLY_INT) && b->t->eq(Type::POLY_INT))
             return new NIntPolyOp(a, op, b);
-        else
+        else if (a->t->eq(Type::POLY_RAT) || b->t->eq(Type::POLY_RAT))
             return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* polyVar(const std::string& name) const { return 
@@ -349,7 +351,10 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NRatPolyOp(a, op, b);
+        if (a->t->eq(Type::POLY_INT) || a->t->eq(Type::POLY_RAT))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* polyMono(Node* c, Node* m) const override {
@@ -407,7 +412,10 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return new NModPolyOp(a, op, b);
+        if (a->t->eq(Type::POLY_MOD))
+            return new NModPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* polyMono(Node* c, Node* m) const override {
@@ -488,16 +496,24 @@ public:
     Node* opInt(Node* a, const std::string& op, Node* b) const override {
         if (base->eq(Type::INTEGER))
             return new NIntPolyOp(a, op, b);
-        else
+        else if (base->eq(Type::RATIONAL))
             return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* opRat(Node* a, const std::string& op, Node* b) const override {
-        return new NRatPolyOp(a, op, b);
+        if (base->eq(Type::RATIONAL) || base->eq(Type::INTEGER))
+            return new NRatPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* opMod(Node* a, const std::string& op, Node* b) const override {
-        return new NModPolyOp(a, op, b);
+        if (base->eq(Type::MODULAR))
+            return new NModPolyOp(a, op, b);
+        else
+            badOp(a, op, b);
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
