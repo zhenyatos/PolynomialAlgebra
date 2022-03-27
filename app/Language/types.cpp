@@ -299,9 +299,9 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        if (a->t->eq(Type::POLY_INT) && b->t->eq(Type::POLY_INT))
+        if (a->t->eq(Type::POLY_INT) || a->t->eq(Type::INTEGER))
             return new NIntPolyOp(a, op, b);
-        else if (a->t->eq(Type::POLY_RAT) || b->t->eq(Type::POLY_RAT))
+        else if (a->t->eq(Type::POLY_RAT))
             return new NRatPolyOp(a, op, b);
         else
             badOp(a, op, b);

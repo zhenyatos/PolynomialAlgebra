@@ -26,9 +26,13 @@ Node* Parser::sentence() {
     if (current < tokens.size()) {
         if (tokens[current].first == TokenName::END_OF_COMMAND) {
             eat(TokenName::END_OF_COMMAND);
-            res->evaluate(); 
+            try { 
+                res->evaluate(); 
+            } catch(const std::exception& ex) {
+                std::cout << "[INTERPRETER]: " << ex.what() << std::endl;
+            }
             freeNodes();
-            res = sentence();
+            res = AST();
         }
         else
             throw std::runtime_error("Unexpected token " + tokens[current].second + " after end of expression");
@@ -257,7 +261,7 @@ Node* Parser::AST() {
     try {
         res = sentence();
     } catch (const std::exception& ex) {
-        std::cout << ex.what() << std::endl;
+        std::cout << "[PARSER]: " << ex.what() << std::endl;
         freeNodes();
         return nullptr;
     }
