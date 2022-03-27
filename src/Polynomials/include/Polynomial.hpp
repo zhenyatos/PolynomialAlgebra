@@ -22,7 +22,8 @@ public:
     T operator()(T x) const;
     int deg() const;
 
-    std::vector<T> getCoeff() const { return coeff; }
+    inline std::vector<T> getCoeff() const { return coeff; }
+    inline bool isZero() const { return (coeff.size() == 0); }
 
     std::pair<Polynomial, Polynomial> divRem(const Polynomial& other) const;
     Polynomial div(const Polynomial& other) const;
@@ -54,7 +55,6 @@ private:
     std::vector<T> coeff;
 
     void reduce();
-    inline bool isZero() const { return (coeff.size() == 0); }
     inline T lead() const { return coeff.back(); }
 };
 
@@ -257,3 +257,15 @@ inline Polynomial<T> div(const Polynomial<T> a, const Polynomial<T>& b) { return
 
 template<class T>
 inline Polynomial<T> rem(const Polynomial<T>& a, const Polynomial<T>& b) { return a.rem(b); }
+
+template<class T>
+Polynomial<T> GCD(const Polynomial<T>& a, const Polynomial<T>& b) {
+    Polynomial<T> x = a;
+    Polynomial<T> y = b;
+    while (!y.isZero()) {
+        Polynomial<T> r = x.rem(y);
+        x = y;
+        y = r;
+    }
+    return x;
+}
