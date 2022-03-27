@@ -31,7 +31,7 @@ public:
     virtual bool eq(const Type* other) const { return code == other->code; }
 
     virtual Node* val(Node* arg) const { return arg; }
-    virtual Node* var(const std::string& name) const { return nullptr; }
+    virtual Node* var(const std::string& name) const;
 
     virtual Node* binop(Node* a, const std::string& op, Node* b) const;
 
@@ -41,9 +41,9 @@ public:
     virtual Node* opPoly(Node* a, const std::string& op, Node* b) const;
 
     virtual Node* polyAssign(const std::string& name, Node* val) const;
-    virtual Node* polyVar(const std::string& name) const { return nullptr; }
-    virtual Node* polyMono(Node* c, Node* m) const { return nullptr; }
-    virtual Node* polyEval(Node* p, Node* x) const { return nullptr; }
+    virtual Node* polyVar(const std::string& name) const;
+    virtual Node* polyMono(Node* c, Node* m) const;
+    virtual Node* polyEval(Node* p, Node* x) const;
 
     virtual std::string toStr() const = 0;
 

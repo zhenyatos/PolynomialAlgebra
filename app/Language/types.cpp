@@ -12,8 +12,24 @@ Node* Type::polyAssign(const std::string& name, Node* val) const {
     throw std::runtime_error("Polynomial{" + toStr() + "} is undefined");
 }
 
+Node* Type::polyEval(Node* p, Node* x) const { 
+    throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
+}
+
+Node* Type::polyMono(Node* c, Node* m) const { 
+    throw std::runtime_error("No method matching .(" + c->t->toStr() + ", " + m->t->toStr() + ")");
+}
+
 Node* Type::unmin(Node* arg) const {
     throw std::runtime_error("No method matching -(" + arg->t->toStr() + ")");
+}
+
+Node* Type::polyVar(const std::string& name) const { 
+    throw std::runtime_error("Can't interpret " + name + " as variable");
+};
+
+Node* Type::var(const std::string& name) const { 
+    throw std::runtime_error("Can't interpret " + name + " as variable");
 }
 
 Node* Type::abs(Node* arg) const {
@@ -176,11 +192,18 @@ public:
         if (!x->isEval())
             x->evaluate();
         Rational arg;
+        Polynomial<Rational> poly;
+        
         if (x->t->eq(Type::INTEGER))
             arg = Rational(((NIntVal*)x)->getValue());
         else
             arg = ((NRatVal*)x)->getValue();
-        Polynomial<Rational> poly = ((NRatPolyVal*)p)->getPoly();
+        
+        if (p->t->eq(Type::POLY_RAT))
+            poly = ((NRatPolyVal*)p)->getPoly();
+        else
+            poly = cast(((NIntPolyVal*)p)->getPoly());
+
         value = poly(arg);
         evaluated = true;
     }
@@ -293,7 +316,11 @@ public:
     }
 
     Node* polyEval(Node* p, Node* x) const override {
-        return new NIntPolyEvaluate(p, x);
+        if (x->t->eq(Type::INTEGER))
+            return new NIntPolyEvaluate(p, x);
+        if (x->t->eq(Type::RATIONAL))
+            return new NRatPolyEvaluate(p, x);
+        throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
     }
     
     std::string toStr() const override {
@@ -362,7 +389,10 @@ public:
     }
 
     Node* polyEval(Node* p, Node* x) const override {
-        return new NRatPolyEvaluate(p, x);
+        if (x->t->eq(Type::RATIONAL) || x->t->eq(Type::INTEGER))
+            return new NRatPolyEvaluate(p, x);
+        else
+            throw std::runtime_error("No method matching eval(" + p->t->toStr() + ", " + x->t->toStr() + ")");
     }
 
     std::string toStr() const override {

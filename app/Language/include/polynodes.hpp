@@ -203,3 +203,5 @@ public:
 private:
     std::string name;
 };
+
+Polynomial<Rational> cast(const Polynomial<Integer>& p);
