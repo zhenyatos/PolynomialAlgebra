@@ -3,6 +3,11 @@
 #include "polynodes.hpp"
 #include "Interpreter.hpp"
 
+
+Node* Type::assign(const std::string& name, Node* val) const {
+    throw std::runtime_error("Can't assign " + toStr());
+}
+
 Node* Type::polyAssign(const std::string& name, Node* val) const {
     throw std::runtime_error("Polynomial{" + toStr() + "} is undefined");
 }
@@ -218,10 +223,6 @@ public:
     TNothing() : Type(0) {}
     ~TNothing() override {}
 
-    Node* assign(const std::string& name, Node* val) const override {
-        throw std::runtime_error("Can't assign " + toStr());
-    }
-
     void print(Node* expr, std::ostream& stream) const override { }
     
     std::string toStr() const override {
@@ -234,6 +235,8 @@ class TInteger : public Type {
 public:
     TInteger() : Type(1) {}
     ~TInteger() override {}
+
+    const PolyType* getPT() const override { return Type::POLY_INT->getPT(); }
 
     Node* assign(const std::string& name, Node* val) const override {
         return new NIntAssign(name, val);
@@ -281,18 +284,6 @@ public:
         else
             return new NRatPolyOp(a, op, b);
     }
-
-    Node* polyVar(const std::string& name) const { return 
-        new NIntPolyValVar(name); 
-    }
-
-    Node* polyMono(Node* c, Node* m) const override {
-        return new NIntPolyMono(c, m);
-    }
-
-    Node* polyEval(Node* p, Node* x) const override {
-        return new NIntPolyEvaluate(p, x);
-    }
     
     std::string toStr() const override {
         return "INTEGER";
@@ -336,10 +327,6 @@ public:
         return new NRatValVar(name);
     }
 
-    Node* polyVar(const std::string& name) const override {
-        return new NRatPolyValVar(name);
-    }
-
     Node* opInt(Node* a, const std::string& op, Node* b) const override {
         return new NRatOp(a, op, b);
     }
@@ -350,14 +337,6 @@ public:
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
         return new NRatPolyOp(a, op, b);
-    }
-
-    Node* polyMono(Node* c, Node* m) const override {
-        return new NRatPolyMono(c, m);
-    }
-
-    Node* polyEval(Node* p, Node* x) const override {
-        return new NRatPolyEvaluate(p, x);
     }
 
     std::string toStr() const override {
@@ -398,24 +377,12 @@ public:
         return new NModValVar(name);
     }
 
-    Node* polyVar(const std::string& name) const override {
-        return new NModPolyValVar(name);
-    }
-
     Node* opMod(Node* a, const std::string& op, Node* b) const override {
         return new NModOp(a, op, b);
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
         return new NModPolyOp(a, op, b);
-    }
-
-    Node* polyMono(Node* c, Node* m) const override {
-        return new NModPolyMono(c, m);
-    }
-
-    Node* polyEval(Node* p, Node* x) const override {
-        return new NModPolyEvaluate(p, x);
     }
 
     std::string toStr() const override {
@@ -452,10 +419,6 @@ public:
     TMonomial() : Type(5) {}
     ~TMonomial() override {}
 
-    Node* assign(const std::string& name, Node* val) const override {
-        throw std::runtime_error("Can't assign " + toStr());
-    }
-    
     void print(Node* expr, std::ostream& stream) const override { 
         NMonom* m = (NMonom*)expr;
         stream << "X^" << m->getDeg() << std::endl;
@@ -466,18 +429,38 @@ public:
     }
 };
 
+class PTInteger : public PolyType {
+public:
+    PTInteger() : PolyType(Type::INTEGER) {}
+    ~PTInteger() override = default;
+
+    Node* var(const std::string& name) const override {
+        return new NIntPolyValVar(name);
+    }
+
+    Node* mono(Node* c, Node* m) const override {
+        return new NIntPolyMono(c, m);
+    }
+
+    Node* eval(Node* p, Node* x) const override {
+        return new NIntPolyEvaluate(p, x);
+    }
+};
+
 class TPolynomial : public Type {
 public:
-    TPolynomial(const Type* base) : Type(6), base(base) {}
-    ~TPolynomial() override {}
+    TPolynomial(const PolyType* pt) : Type(6), pt(pt) {}
+    ~TPolynomial() override { delete pt; }
+
+    const PolyType* getPT() const override { return pt; }
 
     Node* assign(const std::string& name, Node* val) const override {
-        return base->polyAssign(name, val);
+        return pt->getBase()->polyAssign(name, val);
     }
 
     bool eq(const Type* other) const override { 
         if (Type::eq(other))
-            return base == ((TPolynomial*)other)->base;
+            return pt->getBase() == ((TPolynomial*)other)->pt->getBase();
         return false;
     }
 
@@ -486,7 +469,7 @@ public:
     }
 
     Node* opInt(Node* a, const std::string& op, Node* b) const override {
-        if (base->eq(Type::INTEGER))
+        if (pt->getBase()->eq(Type::INTEGER))
             return new NIntPolyOp(a, op, b);
         else
             return new NRatPolyOp(a, op, b);
@@ -501,19 +484,15 @@ public:
     }
 
     Node* opPoly(Node* a, const std::string& op, Node* b) const override {
-        return base->opPoly(a, op, b);
+        return pt->getBase()->opPoly(a, op, b);
     }
 
     Node* var(const std::string& name) const override {
-        return base->polyVar(name);
-    }
-
-    Node* polyEval(Node* p, Node* x) const override {
-        return base->polyEval(p, x);
+        return pt->var(name);
     }
 
     void print(Node* expr, std::ostream& stream) const override { 
-        const Type* b = ((TPolynomial*)expr->t)->base;
+        const Type* b = ((TPolynomial*)expr->t)->pt->getBase();
         if (b->eq(Type::INTEGER))
             stream << ((NIntPolyVal*)expr)->getPoly() << std::endl;
         else if (b->eq(Type::RATIONAL))
@@ -523,13 +502,11 @@ public:
     }
     
     std::string toStr() const override {
-        return "POLYNOMIAL{" + base->toStr() + "}";
+        return "POLYNOMIAL{" + pt->getBase()->toStr() + "}";
     }
 
-    const Type* getBase() const { return base; }
-
 private:
-    const Type* base;
+    const PolyType* pt;
 };
 
 void Type::initialize() {
@@ -539,9 +516,9 @@ void Type::initialize() {
     Type::MODULAR    = new TModular();
     Type::VARIABLE   = new TVariable();
     Type::MONOMIAL   = new TMonomial();
-    Type::POLY_INT   = new TPolynomial(Type::INTEGER);
-    Type::POLY_RAT   = new TPolynomial(Type::RATIONAL);
-    Type::POLY_MOD   = new TPolynomial(Type::MODULAR);
+    Type::POLY_INT   = new TPolynomial(new PTInteger());
+    Type::POLY_RAT   = new TPolynomial(nullptr);
+    Type::POLY_MOD   = new TPolynomial(nullptr);
 }
 
 void Type::destroy() {

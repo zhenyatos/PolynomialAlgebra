@@ -39,7 +39,7 @@ Node* binop(Node* l, Node* r, const std::string& op) {
 }
 
 Node* peval(Node* p, Node* x) {
-    return p->t->polyEval(p, x);
+    return p->t->getPT()->eval(p, x);
 }
 
 Node* assign(std::string name, Node* val) {
@@ -47,5 +47,5 @@ Node* assign(std::string name, Node* val) {
 }
 
 Node* polymono(Node* c, Node* m) {
-    return c->t->polyMono(c, m);
+    return c->t->getPT()->mono(c, m);
 }
