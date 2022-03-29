@@ -30,6 +30,9 @@ Node* Parser::sentence() {
                 res->evaluate(); 
             } catch(const std::exception& ex) {
                 std::cout << "[INTERPRETER]: " << ex.what() << std::endl;
+            } catch(int ex) {
+                nodes.push_back(new NExit());
+                return nodes.back();
             }
             freeNodes();
             res = AST();
@@ -220,6 +223,8 @@ Node* Parser::prime() {
                 Node* x = statement();
                 nodes.push_back(peval(p, x));
             }
+            else if (token.second == "exit") 
+                nodes.push_back(new NExit());
             eat(TokenName::RPAREN);
         }
         return nodes.back();
@@ -264,7 +269,7 @@ Node* Parser::AST() {
         std::cout << "[PARSER]: " << ex.what() << std::endl;
         freeNodes();
         return nullptr;
-    }
+    } 
     return res;
 }
 

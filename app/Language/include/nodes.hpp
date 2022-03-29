@@ -19,6 +19,14 @@ protected:
     bool evaluated = false;
 };
 
+class NExit : public Node {
+public:
+    NExit() : Node(Type::NOTHING) {}
+    ~NExit() override = default;
+
+    void evaluate() override { throw 0; }
+};
+
 class NIntVal : public Node {
 public:
     NIntVal() : Node(Type::INTEGER) {}
