@@ -6,6 +6,7 @@ int main() {
     Type::initialize();
     std::vector<Token> tokens;
     std::string input;
+    std::cout << ">>> ";
     std::getline(std::cin, input);
     while(input != "") {
         try {
@@ -23,9 +24,14 @@ int main() {
                 head->evaluate();
             } catch(const std::exception& ex) {
                 std::cout << "[INTERPRETER]: " << ex.what() << std::endl;
+            } catch(int ex) {
+                p.freeNodes();
+                Type::destroy();
+                return 0;
             }
         }
         p.freeNodes();
+        std::cout << "\n>>> ";
         std::getline(std::cin, input);
     }
     Type::destroy();

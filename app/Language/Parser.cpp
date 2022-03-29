@@ -220,6 +220,8 @@ Node* Parser::prime() {
                 Node* x = statement();
                 nodes.push_back(peval(p, x));
             }
+            else if (token.second == "exit") 
+                nodes.push_back(new NExit());
             eat(TokenName::RPAREN);
         }
         return nodes.back();
