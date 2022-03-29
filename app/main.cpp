@@ -8,7 +8,7 @@ int main() {
     std::string input;
     std::cout << ">>> ";
     std::getline(std::cin, input);
-    while(input != "") {
+    while(true) {
         try {
             tokens = Lexer::parse(input);
         } catch(const std::exception& ex) {
