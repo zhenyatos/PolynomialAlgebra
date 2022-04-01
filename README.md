@@ -10,7 +10,7 @@ To compile the project, run the following command in the root folder:
 
 `cmake --build build --config Release --target all -j`
 
-This should generate **palgebra** executable inside `build` folder. Now you can run it and move to the next steps.
+This should generate **palgebra** executable inside `build` folder. Now you can run it and move to the next steps. Note that you can use `exit()` command to close the application.
 
 ## Usage
 Usage is fairly intuitive, so I have decided to include some examples and that's it.
@@ -41,3 +41,10 @@ Notes:
 - Monomial is represented as `c.X^n` where `c` - coefficient (`INTEGER`, `RATIONAL` or `MODULAR`) and `X^n` means that monomial is of degree `n`
 - Implicit type conversion between `POLYNOMIAL{INTEGER}` and `POLYNOMIAL{RATIONAL}` data types is implemented 
 - `eval` command is introduced here: for polynomial `poly` of type `POLYNOMIAL{T}`, `eval(poly, x)`, where `x` is of type `T` means evaluation in point `x`. In other words, this command allows us to treat polynomials as functions
+
+### GCD calculation
+
+![image](https://user-images.githubusercontent.com/47058532/161216918-be4b5f7e-8563-417e-a51e-397c2a578b57.png)
+
+Notes: 
+- `GCD` method is implemented for the following data types: `INTEGER`, `POLYNOMIAL{RATIONAL}` and `POLYNOMIAL{MODULAR}`, although for the non-prime modulus it cannot be guaranteed that the method will return the correct result
