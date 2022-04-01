@@ -47,4 +47,4 @@ Notes:
 ![image](https://user-images.githubusercontent.com/47058532/161216918-be4b5f7e-8563-417e-a51e-397c2a578b57.png)
 
 Notes: 
-- `GCD` method is implemented for the following data types: `INTEGER`, `POLYNOMIAL{RATIONAL}` and `POLYNOMIAL{MODULAR}`, although for the non-prime modulus it cannot be guaranteed that the method will return the correct result
+- `gcd` method is implemented for the following data types: `INTEGER`, `POLYNOMIAL{RATIONAL}` and `POLYNOMIAL{MODULAR}`, although for the non-prime modulus it cannot be guaranteed that the method will return the correct result
