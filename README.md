@@ -22,7 +22,7 @@ Usage is fairly intuitive, so I have decided to include some examples and that's
 Notes:
 - `p//q` stands for the rational number with numerator `p` and denominator `q`
 - `[a, N]` stands for `a` modulo `N`
-- Implicit type conversion is implemented between `INTEGER` and `RATIONAL` data types
+- Implicit type conversion between `INTEGER` and `RATIONAL` data types is implemented
 
 ### Variables
 
@@ -32,3 +32,12 @@ Notes:
 - Variable type is deduced from the expression on the right side of the assignment operator
 - `;` serves as the separator in complex sentences
 - `print` command is introduced here. It may seem unnecessary, yet it's possible to use it in complex sentences
+
+### Polynomial arithmetic
+
+![image](https://user-images.githubusercontent.com/47058532/161214680-13fdd978-eeb3-4eef-b61f-5fefc05626e6.png)
+
+Notes:
+- Monomial is represented as `c.X^n` where `c` - coefficient (`INTEGER`, `RATIONAL` or `MODULAR`) and `X^n` means that monomial is of degree `n`
+- Implicit type conversion between `POLYNOMIAL{INTEGER}` and `POLYNOMIAL{RATIONAL}` data types is implemented 
+- `eval` command is introduced here: for polynomial `poly` of type `POLYNOMIAL{T}`, `eval(poly, x)`, where `x` is of type `T` means evaluation in point `x`. In other words, this command allows us to treat polynomials as functions
