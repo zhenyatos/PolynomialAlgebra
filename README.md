@@ -1,5 +1,5 @@
 # PolynomialAlgebra
-> Console calculator with support of the Integers, Rationals, Modular arithmetic, as well as the Polynomials over these types
+> Console calculator with support of the Integer, Rational, Modular arithmetic, as well as the Polynomials over these types
 
 ## Requirements
 - GCC 7.3.0 (C++ 11)
